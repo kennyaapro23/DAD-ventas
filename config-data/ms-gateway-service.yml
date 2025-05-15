@@ -15,32 +15,25 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-<<<<<<< HEAD
+
             allowedOrigins: "http://localhost:4200"
-=======
+
             allowedOrigins:
               - "http://localhost:4200"
             allowedHeaders: "*"
->>>>>>> fef0a72b0fcf96b4e0c592cd7b273a9f915930a0
+
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
-<<<<<<< HEAD
               - OPTIONS
-<<<<<<< HEAD
             allowedHeaders:
               - Authorization
               - Content-Type
               - Accept
-=======
->>>>>>> fef0a72b0fcf96b4e0c592cd7b273a9f915930a0
             allowCredentials: true
-=======
 
-              
->>>>>>> 911f7074161bebba2c7c0b292b2d158369403e83
       discovery:
         locator:
           enable: true
