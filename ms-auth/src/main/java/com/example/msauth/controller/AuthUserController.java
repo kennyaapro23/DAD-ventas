@@ -36,6 +36,7 @@ public class AuthUserController {
         AuthUser authUser = authUserService.save(authUserDto);
         if (authUser == null)
             return ResponseEntity.badRequest().build();
+        System.out.println("successful: " );
         return ResponseEntity.ok(authUser);
     }
 }

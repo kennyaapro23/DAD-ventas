@@ -1,4 +1,4 @@
-package com.example.mscatalogo.service.Impl;
+package com.example.mscatalogo.service.impl;
 
 import com.example.mscatalogo.entity.Category;
 import com.example.mscatalogo.entity.Product;

@@ -1,4 +1,4 @@
-package com.example.mscatalogo.service.Impl;
+package com.example.mscatalogo.service.impl;
 
 import com.example.mscatalogo.entity.Category;
 import com.example.mscatalogo.repository.CategoryRepository;
@@ -26,6 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category guardar(Category category) {
         return categoryRepository.save(category);
+
     }
 
     @Override

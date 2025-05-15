@@ -11,9 +11,9 @@ import lombok.Data;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
-    public String name;
-    public String description;
+    private Integer id;
+    private String name;
+    private String description;
     private String code;
 
 }

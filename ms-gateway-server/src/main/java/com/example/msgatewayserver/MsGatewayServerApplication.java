@@ -10,4 +10,6 @@ public class MsGatewayServerApplication {
 		SpringApplication.run(MsGatewayServerApplication.class, args);
 	}
 
+
 }
+

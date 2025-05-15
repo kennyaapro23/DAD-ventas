@@ -1,0 +1,36 @@
+<div class="container mt-4">
+  <h2>Lista de Productos</h2>
+
+  <div *ngIf="isLoading">Cargando productos...</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <table class="table table-bordered table-striped mt-3" *ngIf="products.length > 0">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Código</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.category }}</td>
+        <td>{{ product.code }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.stock }}</td>
+        <td>
+          <a [routerLink]="['/productos/editar', product.id]" class="btn btn-sm btn-primary">Editar</a>
+          <button class="btn btn-sm btn-danger ms-2" (click)="deleteProduct(product.id!)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a [routerLink]="['/productos/nuevo']" class="btn btn-success mt-3">Agregar Nuevo Producto</a>
+</div>

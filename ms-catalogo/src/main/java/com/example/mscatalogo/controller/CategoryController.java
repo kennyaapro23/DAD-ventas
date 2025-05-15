@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/Category")
@@ -20,6 +19,10 @@ public class CategoryController {
 
         return ResponseEntity.ok().body(categoryService.listar());
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test successful");
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Category> listById(@PathVariable(required = true)Integer id){
@@ -28,7 +31,9 @@ public class CategoryController {
 
     @PostMapping()
     public ResponseEntity<Category> save(@RequestBody Category category){
+        System.out.println("Categoria recibida: " + category);
         return ResponseEntity.ok().body(categoryService.guardar(category));
+
     }
 
     @PutMapping()
