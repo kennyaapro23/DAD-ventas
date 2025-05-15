@@ -1,15 +1,11 @@
-export interface Category {
-  id: number;
-  name: string;
-  // Otras propiedades si existen
-}
+import { Category } from './category.model';
 
-export interface Product {  // Cambiado de 'Producto' a 'Product' para coincidir con Java
-  id: number;
-  name: string;           // Antes 'nombre'
+export interface Product {
+  id?: number;
+  name: string;
   description: string;
   code: string;
   stock: number;
-  price: number;          // Antes 'precio'
+  price: number;
   category: Category;
 }

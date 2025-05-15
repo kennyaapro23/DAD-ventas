@@ -17,9 +17,13 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping()
-    public ResponseEntity<List<Product>> list(){
-        return ResponseEntity.ok().body(productService.listar());
+    public ResponseEntity<List<Product>> list() {
+        System.out.println("GET /Product called");
+        List<Product> products = productService.listar();
+        System.out.println("Products found: " + products.size());
+        return ResponseEntity.ok().body(products);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable Integer id){
@@ -37,9 +41,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteById(@PathVariable(required = true)Integer id){
+    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         productService.eliminarPorId(id);
-        return "elminacion correcta";
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/reduce-stock")

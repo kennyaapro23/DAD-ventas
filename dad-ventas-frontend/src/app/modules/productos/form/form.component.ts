@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models/producto.model';
+import { Category } from '../../../core/models/category.model';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,6 +17,7 @@ export class FormComponent implements OnInit {
   productForm!: FormGroup;
   isEdit = false;
   productId?: number;
+  categories: Category[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -26,6 +28,7 @@ export class FormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadCategories();
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -40,10 +43,16 @@ export class FormComponent implements OnInit {
   initForm(): void {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
-      category: ['', Validators.required],
+      category: [null, Validators.required],
       code: ['', Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]]
+    });
+  }
+
+  loadCategories(): void {
+    this.productService.getCategories().subscribe(cats => {
+      this.categories = cats;
     });
   }
 

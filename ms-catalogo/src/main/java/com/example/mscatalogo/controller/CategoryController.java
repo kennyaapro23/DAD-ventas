@@ -11,39 +11,56 @@ import java.util.List;
 @RestController
 @RequestMapping("/Category")
 public class CategoryController {
+
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping()
-    public ResponseEntity<List<Category>> list(){
-
-        return ResponseEntity.ok().body(categoryService.listar());
+    @GetMapping
+    public ResponseEntity<List<Category>> list() {
+        List<Category> categories = categoryService.listar();
+        return ResponseEntity.ok(categories);
     }
+
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("Test successful");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> listById(@PathVariable(required = true)Integer id){
-        return ResponseEntity.ok().body(categoryService.buscarPorId(id).get());
+    public ResponseEntity<Category> listById(@PathVariable Integer id) {
+        return categoryService.buscarPorId(id)
+                .map(category -> ResponseEntity.ok().body(category))
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping()
-    public ResponseEntity<Category> save(@RequestBody Category category){
+    @PostMapping
+    public ResponseEntity<Category> save(@RequestBody Category category) {
         System.out.println("Categoria recibida: " + category);
-        return ResponseEntity.ok().body(categoryService.guardar(category));
-
+        Category savedCategory = categoryService.guardar(category);
+        return ResponseEntity.ok(savedCategory);
     }
 
-    @PutMapping()
-    public ResponseEntity<Category> update(@RequestBody Category category){
-        return ResponseEntity.ok().body(categoryService.actualizar(category));
+    @PutMapping
+    public ResponseEntity<Category> update(@RequestBody Category category) {
+        if (category.getId() == null) {
+            return ResponseEntity.badRequest().build(); // O devuelve un mensaje indicando que falta ID
+        }
+
+        return categoryService.buscarPorId(category.getId())
+                .map(existingCategory -> {
+                    Category updated = categoryService.actualizar(category);
+                    return ResponseEntity.ok(updated);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public String deleteById(@PathVariable(required = true)Integer id){
-        categoryService.eliminarPorId(id);
-        return "elminacion correcta";
+    public ResponseEntity<?> deleteById(@PathVariable Integer id) {
+        return categoryService.buscarPorId(id)
+                .map(category -> {
+                    categoryService.eliminarPorId(id);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

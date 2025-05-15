@@ -40,14 +40,19 @@ export class ListComponent implements OnInit {
   }
 
   deleteProduct(id: number): void {
-    if (confirm('¿Seguro que deseas eliminar este producto?')) {
-      this.productService.deleteProduct(id).subscribe({
-        next: () => this.loadProducts(),
-        error: (err) => {
-          console.error('Error deleting product:', err);
-          this.errorMessage = 'Error deleting product';
-        }
-      });
-    }
+  if (confirm('¿Seguro que deseas eliminar este producto?')) {
+    this.productService.deleteProduct(id).subscribe({
+      next: (response) => {
+        this.errorMessage = null;  // Limpiar mensajes de error previos
+        alert('Eliminación exitosa'); // Mostrar alerta de éxito (puedes cambiar por otra forma de mostrar)
+        this.loadProducts(); // Recargar lista
+      },
+      error: (err) => {
+        console.error('Error deleting product:', err);
+        this.errorMessage = 'Error al eliminar el producto';
+      }
+    });
   }
+}
+
 }

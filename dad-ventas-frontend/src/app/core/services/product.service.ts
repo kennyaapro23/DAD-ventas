@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Product } from '../models/producto.model'; // Asegúrate de que este archivo exista
+import { Product } from '../models/producto.model';
+import { Category } from '../models/category.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:8085/Product'; // Usa tu gateway si aplica
+  private apiUrl = 'http://localhost:8085/Product';
+  private categoriesApiUrl = 'http://localhost:8085/Category';
 
   constructor(private http: HttpClient) {}
 
@@ -29,5 +31,9 @@ export class ProductService {
 
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(this.categoriesApiUrl);
   }
 }
