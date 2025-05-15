@@ -1,12 +1,11 @@
 server:
   port: 8085
+
 eureka:
   client:
     serviceUrl:
-      #defaultZone: http://localhost:8090/eureka
       defaultZone: ${EUREKA_URI:http://localhost:8090/eureka}
   instance:
-    #hostname: localhost
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
 spring:
@@ -15,28 +14,24 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-
-            allowedOrigins: "http://localhost:4200"
-
             allowedOrigins:
               - "http://localhost:4200"
-            allowedHeaders: "*"
-
+            allowedHeaders:
+              - Authorization
+              - Content-Type
+              - Accept
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
               - OPTIONS
-            allowedHeaders:
-              - Authorization
-              - Content-Type
-              - Accept
             allowCredentials: true
 
       discovery:
         locator:
-          enable: true
+          enabled: true
+
       routes:
         - id: ms-catalogo-service
           uri: lb://ms-catalogo-service
@@ -44,24 +39,28 @@ spring:
             - Path=/Category/**, /Product/**
           filters:
             - AuthFilter
+
         - id: ms-client-service
           uri: lb://ms-client-service
           predicates:
             - Path=/Client/**
           filters:
             - AuthFilter
+
         - id: ms-pedido-service
           uri: lb://ms-pedido-service
           predicates:
             - Path=/Order/**
           filters:
             - AuthFilter
+
         - id: ms-venta-service
           uri: lb://ms-venta-service
           predicates:
             - Path=/Sale/**, /reports/**
           filters:
             - AuthFilter
+
         - id: ms-auth-service
           uri: lb://ms-auth-service
           predicates:
