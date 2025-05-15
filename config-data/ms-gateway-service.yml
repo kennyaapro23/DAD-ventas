@@ -23,8 +23,8 @@ spring:
               - POST
               - PUT
               - DELETE
-              - OPTIONS
-            allowCredentials: true
+
+              
       discovery:
         locator:
           enable: true
