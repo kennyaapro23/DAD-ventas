@@ -1,36 +1,65 @@
-<div class="container mt-4">
-  <h2>Lista de Productos</h2>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+    <!-- Título -->
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">📋 Lista de Productos</h2>
 
-  <div *ngIf="isLoading">Cargando productos...</div>
-  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="text-slate-500 mb-4 animate-pulse">
+        Cargando productos...
+    </div>
 
-  <table class="table table-bordered table-striped mt-3" *ngIf="products.length > 0">
-    <thead class="table-lithg">
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Categoría</th>
-        <th>Código</th>
-        <th>Precio</th>
-        <th>Stock</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let product of products">
-        <td>{{ product.id }}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.category.name }}</td>
-        <td>{{ product.code }}</td>
-        <td>{{ product.price }}</td>
-        <td>{{ product.stock }}</td>
-        <td>
-          <a [routerLink]="['/productos/editar', product.id]" class="btn btn-sm btn-primary">Editar</a>
-          <button class="btn btn-sm btn-danger ms-2" (click)="deleteProduct(product.id!)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="bg-red-100 text-red-600 px-4 py-2 rounded mb-4 border border-red-300">
+        {{ errorMessage }}
+    </div>
 
-  <a [routerLink]="['/productos/nuevo']" class="btn btn-success mt-3">Agregar Nuevo Producto</a>
+    <!-- Tabla -->
+    <div class="overflow-x-auto shadow-md rounded-lg ring-1 ring-slate-200">
+        <table class="min-w-full bg-white border border-slate-200 rounded-md overflow-hidden">
+            <thead class="bg-slate-50 text-slate-600 text-sm font-semibold tracking-wide uppercase border-b border-slate-200">
+            <tr>
+                <th class="px-6 py-3 text-left">ID</th>
+                <th class="px-6 py-3 text-left">Nombre</th>
+                <th class="px-6 py-3 text-left">Categoría</th>
+                <th class="px-6 py-3 text-left">Código</th>
+                <th class="px-6 py-3 text-left">Precio</th>
+                <th class="px-6 py-3 text-left">Stock</th>
+                <th class="px-6 py-3 text-left">Acciones</th>
+            </tr>
+            </thead>
+            <tbody class="text-slate-700 divide-y divide-slate-100 text-sm">
+            <tr *ngFor="let product of products" class="hover:bg-slate-50 transition">
+                <td class="px-6 py-4">{{ product.id }}</td>
+                <td class="px-6 py-4 font-medium text-slate-800">{{ product.name }}</td>
+                <td class="px-6 py-4">{{ product.category.name }}</td>
+                <td class="px-6 py-4">{{ product.code }}</td>
+                <td class="px-6 py-4 text-green-600 font-semibold">${{ product.price }}</td>
+                <td class="px-6 py-4">{{ product.stock }}</td>
+                <td class="px-6 py-4 flex gap-2">
+                    <a
+                            [routerLink]="['/productos/editar', product.id]"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                    >
+                        ✏️ Editar
+                    </a>
+                    <button
+                            (click)="deleteProduct(product.id!)"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-red-500 text-white hover:bg-red-600 transition"
+                    >
+                        🗑 Eliminar
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botón Agregar -->
+    <div class="mt-6">
+        <a
+                [routerLink]="['/productos/nuevo']"
+                class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition-all duration-200"
+        >
+            ➕ Agregar Nuevo Producto
+        </a>
+    </div>
 </div>

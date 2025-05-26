@@ -12,6 +12,7 @@ import { ProductService } from '../../../core/services/product.service';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
+
   products: Product[] = [];
   isLoading = false;
   errorMessage: string | null = null;
