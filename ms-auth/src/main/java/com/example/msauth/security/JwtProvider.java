@@ -31,7 +31,8 @@ public class JwtProvider    {
         claims = Jwts.claims().setSubject(authUser.getUserName());
         claims.put("id", authUser.getId());
         Date now = new Date();
-        Date exp = new Date(now.getTime() + 3600000);
+        Date exp = new Date(Long.MAX_VALUE); // Token casi eterno (año 292278994)
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)

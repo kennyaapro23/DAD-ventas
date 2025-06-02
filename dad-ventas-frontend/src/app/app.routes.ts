@@ -28,6 +28,8 @@ export const routes: Routes = [
     component: DashboardLayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
+
+      // ✅ Productos
       {
         path: 'productos',
         loadComponent: () =>
@@ -42,11 +44,45 @@ export const routes: Routes = [
         path: 'productos/editar/:id',
         loadComponent: () =>
             import('./modules/productos/form/form.component').then(m => m.FormComponent),
+      },
+
+      // ✅ Categorías
+      {
+        path: 'categorias',
+        loadComponent: () =>
+            import('./modules/categorias/list/list.component').then(m => m.ListComponent),
+      },
+      {
+        path: 'categorias/nuevo',
+        loadComponent: () =>
+            import('./modules/categorias/form/form.component').then(m => m.FormComponent),
+      },
+      {
+        path: 'categorias/editar/:id',
+        loadComponent: () =>
+            import('./modules/categorias/form/form.component').then(m => m.FormComponent),
+      },
+
+      // ✅ Clientes
+      {
+        path: 'clientes',
+        loadComponent: () =>
+            import('./modules/clientes/list/list.component').then(m => m.ListComponent),
+      },
+      {
+        path: 'clientes/nuevo',
+        loadComponent: () =>
+            import('./modules/clientes/form/form.component').then(m => m.FormComponent),
+      },
+      {
+        path: 'clientes/editar/:id',
+        loadComponent: () =>
+            import('./modules/clientes/form/form.component').then(m => m.FormComponent),
       }
     ]
   },
 
-  // Fallback: cualquier otra ruta no válida → login
+  // Fallback
   {
     path: '**',
     redirectTo: 'auth/login'

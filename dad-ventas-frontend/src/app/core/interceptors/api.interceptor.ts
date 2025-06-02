@@ -7,6 +7,5 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
       'Accept': 'application/json'
     }
   });
-  console.log('Interceptor: modificado el header:', modifiedReq);
   return next(modifiedReq);
 };

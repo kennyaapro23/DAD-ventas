@@ -1,205 +1,120 @@
-<div [ngClass]="{ 'dark': darkMode }" class="w-screen min-h-screen flex flex-col bg-slate-900 text-white">
+<div class="flex h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
+    <!-- SIDEBAR -->
+    <aside
+            class="fixed lg:static inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out bg-gradient-to-b from-white to-slate-100 border-r border-slate-200 shadow-xl"
 
-<header id="page-header" class="z-1 flex flex-none items-center">
-        <div class="container mx-auto px-4 lg:px-8 xl:max-w-7xl">
-            <div class="flex justify-between py-10">
-                <!-- Left Section -->
-                <div class="flex items-center gap-2 lg:gap-6">
-                    <nav class="flex items-center p-5 lg:gap-8">
-                        <a [routerLink]="['/dashboard']" class="flex items-center font-light text-white transition md:text-lg">INICIO</a>
-                        <a [routerLink]="['/productos']" class="flex items-center font-light text-white transition md:text-lg">PRODUCTOS</a>
-                        <a [routerLink]="['/productos']" class="flex items-center font-light text-white transition md:text-lg">CATEGORIAS</a>
-                        <a [routerLink]="['/productos']" class="flex items-center font-light text-white transition md:text-lg">CARRITO</a>
-                    </nav>
-                </div>
-                <!-- END Left Section -->
-
-                <!-- Right Section -->
-                <div class="flex items-center gap-2 lg:gap-4">
-                    <!-- Search -->
-                    <form onsubmit="return false;" class="w-40 sm:w-72 lg:w-96">
-                        <div class="relative">
-                            <div class="absolute start-0 top-0 bottom-0 flex w-14 items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 text-slate-500">
-                                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <input type="text" class="block w-full rounded-full border-transparent bg-slate-800 py-3 ps-12 pe-5 text-sm leading-5 text-slate-200 placeholder:text-slate-400 hover:border-transparent focus:border-transparent focus:ring-3 focus:ring-slate-500/50" id="search" name="search" placeholder="Search.."
-                            />
-                        </div>
-                    </form>
-                    <!-- END Search -->
-
-                    <!-- User Dropdown -->
-                    <div class="relative inline-block">
-                        <!-- Dropdown Toggle Button -->
-                        <button
-                                type="button"
-                                (click)="toggleDropdown()"
-                                [attr.aria-expanded]="userDropdownOpen"
-                                class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-700/20 hover:bg-slate-700/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                        >
-                            <!-- Avatar -->
-                            <img
-                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=160&ixid=MXwxfDB8MXxhbGx8fHx8fHx8fA&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=160"
-                                    alt="User Avatar"
-                                    class="w-8 h-8 rounded-full"
-                            />
-
-                            <!-- Name -->
-                            <span class="hidden sm:inline-block text-white text-sm font-medium">John Smith</span>
-
-                            <!-- Chevron -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-white">
-                                <path
-                                        fill-rule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                                        clip-rule="evenodd"
-                                />
-                            </svg>
-                        </button>
-
-                        <!-- END Dropdown Toggle Button -->
-
-                        <!-- Dropdown -->
-                        <div
-                                *ngIf="userDropdownOpen"
-                                @fadeScale
-                                appClickOutside
-                                (appClickOutside)="userDropdownOpen = false"
-                                role="menu"
-                                aria-labelledby="dropdown-user"
-                                class="absolute end-0 z-50 mt-2 w-48 rounded-sm shadow-xl"
-                        >
-                            <div
-                                    class="space-y-2 rounded-2xl bg-gray-800/90 px-3 py-4 ring-1 ring-black/5"
-                            >
-                                <a
-                                        role="menuitem"
-                                        href="javascript:void(0)"
-                                        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-900/50 hover:text-slate-200"
-                                >
-                                    <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            class="hi-solid hi-user-circle inline-block size-5 text-slate-600"
-                                    >
-                                        <path
-                                                fill-rule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z"
-                                                clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                    <span>Profile</span>
-                                </a>
-                                <a
-                                        role="menuitem"
-                                        href="javascript:void(0)"
-                                        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-900/50 hover:text-slate-200"
-                                >
-                                    <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            class="hi-solid hi-bell-alert inline-block size-5 text-slate-600"
-                                    >
-                                        <path
-                                                d="M4.214 3.227a.75.75 0 00-1.156-.956 8.97 8.97 0 00-1.856 3.826.75.75 0 001.466.316 7.47 7.47 0 011.546-3.186zM16.942 2.271a.75.75 0 00-1.157.956 7.47 7.47 0 011.547 3.186.75.75 0 001.466-.316 8.971 8.971 0 00-1.856-3.826z"
-                                        />
-                                        <path
-                                                fill-rule="evenodd"
-                                                d="M10 2a6 6 0 00-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 00.515 1.076 32.94 32.94 0 003.256.508 3.5 3.5 0 006.972 0 32.933 32.933 0 003.256-.508.75.75 0 00.515-1.076A11.448 11.448 0 0116 8a6 6 0 00-6-6zm0 14.5a2 2 0 01-1.95-1.557 33.54 33.54 0 003.9 0A2 2 0 0110 16.5z"
-                                                clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                    <span>Notifications</span>
-                                </a>
-                                <a
-                                        role="menuitem"
-                                        href="javascript:void(0)"
-                                        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-900/50 hover:text-slate-200"
-                                >
-                                    <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            class="hi-solid hi-cog-8-tooth inline-block size-5 text-slate-600"
-                                    >
-                                        <path
-                                                fill-rule="evenodd"
-                                                d="M8.34 1.804A1 1 0 019.32 1h1.36a1 1 0 01.98.804l.295 1.473c.497.144.971.342 1.416.587l1.25-.834a1 1 0 011.262.125l.962.962a1 1 0 01.125 1.262l-.834 1.25c.245.445.443.919.587 1.416l1.473.294a1 1 0 01.804.98v1.361a1 1 0 01-.804.98l-1.473.295a6.95 6.95 0 01-.587 1.416l.834 1.25a1 1 0 01-.125 1.262l-.962.962a1 1 0 01-1.262.125l-1.25-.834a6.953 6.953 0 01-1.416.587l-.294 1.473a1 1 0 01-.98.804H9.32a1 1 0 01-.98-.804l-.295-1.473a6.957 6.957 0 01-1.416-.587l-1.25.834a1 1 0 01-1.262-.125l-.962-.962a1 1 0 01-.125-1.262l.834-1.25a6.957 6.957 0 01-.587-1.416l-1.473-.294A1 1 0 011 10.68V9.32a1 1 0 01.804-.98l1.473-.295c.144-.497.342-.971.587-1.416l-.834-1.25a1 1 0 01.125-1.262l.962-.962A1 1 0 015.38 3.03l1.25.834a6.957 6.957 0 011.416-.587l.294-1.473zM13 10a3 3 0 11-6 0 3 3 0 016 0z"
-                                                clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                    <span>Account</span>
-                                </a>
-                                <form onsubmit="return false;">
-                                    <button
-                                            type="submit"
-                                            role="menuitem"
-                                            class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start text-sm font-medium text-slate-300 hover:bg-slate-900/50 hover:text-slate-200"
-                                    >
-                                        <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                                class="hi-solid hi-lock-closed inline-block size-5 text-slate-600"
-                                        >
-                                            <path
-                                                    fill-rule="evenodd"
-                                                    d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                                                    clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                        <span>Sign out</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <!-- END Dropdown -->
-                    </div>
-                    <!-- END User Dropdown -->
-                </div>
-                <!-- END Right Section -->
-            </div>
-        </div>
-    </header>
-    <main class="flex-auto bg-white text-slate-700 px-4 py-6 rounded-lg shadow-lg">
-        <router-outlet></router-outlet>
-    </main>
-
-    <footer
-            id="page-footer"
-            class="flex grow-0 items-center border-t border-slate-800"
     >
-        <div
-                class="container mx-auto flex flex-col gap-2 px-4 py-10 text-center text-sm font-medium text-gray-500 md:flex-row md:justify-between md:gap-0 md:text-start lg:px-8 xl:max-w-7xl"
-        >
-            <div>© <span class="font-semibold">TailFlix</span></div>
-            <div class="inline-flex items-center justify-center">
-          <span>Crafted with</span
-          ><svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    class="mx-1 size-4 text-red-600"
-            >
-                <path
-                        d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z"
-                ></path>
-            </svg>
-                <span
-                >by
-            <a
-                    class="font-medium text-indigo-400 transition hover:text-indigo-500"
-                    href="https://pixelcave.com"
-                    target="_blank"
-            >pixelcave</a
-            ></span
+        <div class="flex flex-col h-full px-6 py-8 space-y-6">
+
+            <!-- LOGO -->
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-sm">
+                    🛍
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Admin</h1>
+            </div>
+
+            <!-- NAVIGATION -->
+            <nav class="flex flex-col space-y-2 text-[15px] font-semibold text-slate-700">
+                <ng-container *ngFor="let item of sidebarItems">
+                    <a
+                            [routerLink]="item.route"
+                            routerLinkActive="active"
+                            class="flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all no-underline shadow-sm group hover:shadow-md hover:-translate-y-0.5 hover:bg-indigo-50 hover:text-indigo-700"
+                    >
+                        <i class="{{ item.icon }} text-indigo-400 group-hover:text-indigo-600 text-lg transition-all"></i>
+                        <span class="flex-1 transition-all">{{ item.label }}</span>
+                        <span
+                                *ngIf="item.badge"
+                                class="ml-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium"
+                        >
+            {{ item.badge }}
+          </span>
+                    </a>
+                </ng-container>
+            </nav>
+
+            <!-- LOGOUT -->
+            <div class="border-t border-slate-200 pt-6 mt-auto">
+                <button
+                        (click)="logout()"
+                        class="flex items-center gap-3 px-4 py-3.5 w-full text-left rounded-lg text-red-600 hover:bg-red-50 hover:shadow transition-all font-semibold group"
                 >
+                    <i class="fa-solid fa-arrow-right-from-bracket text-red-400 group-hover:text-red-600 text-lg transition-all"></i>
+                    Cerrar sesión
+                </button>
             </div>
         </div>
-    </footer>
+    </aside>
+
+
+
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- HEADER -->
+        <header
+                class="sticky top-0 z-10 flex justify-between items-center h-16 px-6 bg-white border-b border-slate-200 shadow-sm backdrop-blur-sm bg-opacity-90"
+        >
+            <div class="text-lg font-bold">Panel de Control</div>
+            <div class="flex items-center gap-4">
+                <button class="relative" (click)="toggleCart()">
+                    🛒
+                    <span
+                            *ngIf="cartTotalCount > 0"
+                            class="absolute -top-2 -right-2 rounded-full bg-red-500 text-white text-xs px-2"
+                    >
+            {{ cartTotalCount }}
+          </span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <img
+                            src="https://i.pravatar.cc/100?img=12"
+                            class="w-8 h-8 rounded-full shadow"
+                    />
+                    <span class="font-medium">John Doe</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO -->
+        <main class="flex-1 overflow-y-auto p-7">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+
+    <!-- CARRITO -->
+    <div
+            *ngIf="cartOpen"
+            class="fixed right-0 top-0 h-full w-80 bg-white border-l border-slate-200 shadow-xl z-50 overflow-y-auto"
+    >
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="font-semibold text-lg">Carrito</h2>
+            <button (click)="toggleCart()">✖</button>
+        </div>
+        <div *ngIf="cartItems.length === 0" class="p-4 text-slate-500">
+            El carrito está vacío.
+        </div>
+        <div
+                *ngFor="let item of cartItems; let i = index"
+                class="flex justify-between items-center p-4 border-b"
+        >
+            <span>{{ item.name }}</span>
+            <span class="text-sm text-slate-600">${{ item.price }}</span>
+            <button (click)="removeFromCart(i)" class="text-red-500 hover:text-red-700">
+                🗑
+            </button>
+        </div>
+        <div class="p-4 font-medium">
+            Total:
+            <span class="float-right">${{ cartTotal.toFixed(2) }}</span>
+        </div>
+        <div class="p-4">
+            <button
+                    (click)="checkout()"
+                    class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+                Finalizar Compra
+            </button>
+        </div>
+    </div>
 </div>

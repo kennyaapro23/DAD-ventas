@@ -18,12 +18,15 @@ export class FormComponent implements OnInit {
   isEdit = false;
   productId?: number;
   categories: Category[] = [];
+  imagePreview: string | ArrayBuffer | null = null;
+  selectedImageFile!: File;
+  errorMessage: string | null = null;
 
   constructor(
-    private fb: FormBuilder,
-    private productService: ProductService,
-    private route: ActivatedRoute,
-    private router: Router
+      private fb: FormBuilder,
+      private productService: ProductService,
+      private route: ActivatedRoute,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -42,24 +45,40 @@ export class FormComponent implements OnInit {
 
   initForm(): void {
     this.productForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(100)]],
       category: [null, Validators.required],
-      code: ['', Validators.required],
+      code: ['', [Validators.required, Validators.maxLength(30)]],
       price: [0, [Validators.required, Validators.min(0)]],
-      stock: [0, [Validators.required, Validators.min(0)]]
+      stock: [0, [Validators.required, Validators.min(0)]],
+      imageUrl: [''] // Se llenará al subir imagen
     });
   }
 
   loadCategories(): void {
-    this.productService.getCategories().subscribe(cats => {
-      this.categories = cats;
+    this.productService.getCategories().subscribe({
+      next: (cats) => (this.categories = cats),
+      error: () => (this.errorMessage = 'Error cargando categorías')
     });
   }
 
   loadProduct(id: number): void {
     this.productService.getProductById(id).subscribe(product => {
       this.productForm.patchValue(product);
+      this.imagePreview = product.imageUrl ?? null;
     });
+  }
+
+  onFileChange(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.selectedImageFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   onSubmit(): void {
@@ -67,15 +86,31 @@ export class FormComponent implements OnInit {
 
     const product: Product = this.productForm.value;
 
-    if (this.isEdit && this.productId != null) {
-      product.id = this.productId;
-      this.productService.updateProduct(product).subscribe(() => {
-        this.router.navigate(['/productos']);
+    const saveOrUpdate = () => {
+      if (this.isEdit && this.productId != null) {
+        product.id = this.productId;
+        this.productService.updateProduct(product).subscribe(() => {
+          this.router.navigate(['/productos']);
+        });
+      } else {
+        this.productService.createProduct(product).subscribe(() => {
+          this.router.navigate(['/productos']);
+        });
+      }
+    };
+
+    if (this.selectedImageFile) {
+      this.productService.uploadImage(this.selectedImageFile).subscribe({
+        next: (imageUrl: string) => {
+          product.imageUrl = imageUrl;
+          saveOrUpdate();
+        },
+        error: () => {
+          this.errorMessage = 'Error al subir imagen';
+        }
       });
     } else {
-      this.productService.createProduct(product).subscribe(() => {
-        this.router.navigate(['/productos']);
-      });
+      saveOrUpdate();
     }
   }
 }

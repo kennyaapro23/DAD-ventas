@@ -8,7 +8,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Random;
+
 
 @Configuration
 public class ProductSeeder {
@@ -17,43 +19,34 @@ public class ProductSeeder {
     CommandLineRunner initProducts(ProductRepository productRepository,
                                    CategoryRepository categoryRepository) {
         return args -> {
-            // Verifica si ya existen productos
             if (productRepository.count() == 0) {
-                // Verifica que las categorías necesarias existan
-                Optional<Category> optElect = categoryRepository.findById(1);
-                Optional<Category> optRopa = categoryRepository.findById(2);
+                List<Category> categorias = categoryRepository.findAll();
 
-                // Si ambas categorías existen
-                if (optElect.isPresent() && optRopa.isPresent()) {
-                    Category elect = optElect.get();
-                    Category ropa = optRopa.get();
-
-                    // Crea los productos
-                    Product p1 = new Product();
-                    p1.setName("Laptop Lenovo");
-                    p1.setDescription("Laptop gama media");
-                    p1.setCode("LAP123");
-                    p1.setStock(25);
-                    p1.setPrice(3500.00);
-                    p1.setCategory(elect);
-
-                    Product p2 = new Product();
-                    p2.setName("Polera Negra");
-                    p2.setDescription("Polera talla M");
-                    p2.setCode("ROP456");
-                    p2.setStock(50);
-                    p2.setPrice(120.00);
-                    p2.setCategory(ropa);
-
-                    // Guarda los productos
-                    productRepository.save(p1);
-                    productRepository.save(p2);
-
-                    System.out.println("✔ Productos insertados");
-                } else {
-                    // Imprime un error si las categorías no existen
-                    System.out.println("⚠️ No se pueden insertar productos, las categorías necesarias no existen");
+                if (categorias.isEmpty()) {
+                    System.out.println("⚠️ No hay categorías disponibles en la base de datos.");
+                    return;
                 }
+
+                Random random = new Random();
+
+                for (int i = 1; i <= 200; i++) {
+                    Product p = new Product();
+
+                    // Selecciona una categoría aleatoria
+                    Category categoria = categorias.get(random.nextInt(categorias.size()));
+                    p.setCategory(categoria);
+
+                    // Genera datos simulados
+                    p.setName("Producto " + i + " - " + categoria.getName());
+                    p.setDescription("Descripción del producto " + i + " de la categoría " + categoria.getName());
+                    p.setCode(categoria.getCode() + String.format("%03d", i));
+                    p.setStock(10 + random.nextInt(90)); // Stock entre 10 y 99
+                    p.setPrice(50 + (1000 * random.nextDouble())); // Precio entre 50 y 1050
+
+                    productRepository.save(p);
+                }
+
+                System.out.println("✔ 200 productos generados e insertados");
             } else {
                 System.out.println("✔ Productos ya existen, no se insertan nuevamente");
             }

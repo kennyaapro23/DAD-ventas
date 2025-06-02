@@ -36,4 +36,14 @@ export class ProductService {
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.categoriesApiUrl);
   }
+
+  // ✅ Método para subir imagen
+  uploadImage(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${this.apiUrl}/upload-image`, formData, {
+      responseType: 'text' // El backend devuelve solo la URL como string
+    });
+  }
 }

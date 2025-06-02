@@ -12,5 +12,6 @@ bootstrapApplication(AppComponent, {
       withInterceptors([authInterceptor])
     ),
     provideRouter(routes)
+
   ]
 });

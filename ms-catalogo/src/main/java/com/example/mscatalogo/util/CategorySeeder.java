@@ -12,26 +12,31 @@ public class CategorySeeder {
     @Bean
     CommandLineRunner initCategories(CategoryRepository categoryRepository) {
         return args -> {
-            // Verifica si las categorías existen por nombre o código
             if (categoryRepository.count() == 0) {
-                // Crea las categorías
-                Category cat1 = new Category();
-                cat1.setName("Electrónica");
-                cat1.setCode("ELEC");
-                cat1.setDescription("Dispositivos electrónicos");
+                String[][] categorias = {
+                        {"Electrónica", "ELEC", "Dispositivos y aparatos electrónicos"},
+                        {"Ropa", "ROP", "Prendas de vestir para todas las edades"},
+                        {"Hogar", "HOG", "Artículos para el hogar y decoración"},
+                        {"Juguetes", "JUG", "Juguetes para niños de todas las edades"},
+                        {"Deportes", "DEP", "Equipamiento deportivo y ropa deportiva"},
+                        {"Libros", "LIB", "Libros de distintos géneros y autores"},
+                        {"Belleza", "BEL", "Productos de cuidado personal y belleza"},
+                        {"Herramientas", "HER", "Herramientas para el hogar y talleres"},
+                        {"Alimentos", "ALI", "Productos alimenticios y bebidas"},
+                        {"Tecnología", "TEC", "Accesorios y gadgets tecnológicos"}
+                };
 
-                Category cat2 = new Category();
-                cat2.setName("Ropa");
-                cat2.setCode("ROP");
-                cat2.setDescription("Prendas de vestir");
+                for (String[] data : categorias) {
+                    Category cat = new Category();
+                    cat.setName(data[0]);
+                    cat.setCode(data[1]);
+                    cat.setDescription(data[2]);
+                    categoryRepository.save(cat);
+                }
 
-                // Guarda las categorías
-                categoryRepository.save(cat1);
-                categoryRepository.save(cat2);
-
-                System.out.println("✔ Categorías insertadas");
+                System.out.println("✔ 10 categorías insertadas correctamente");
             } else {
-                System.out.println("✔ Las categorías ya existen");
+                System.out.println("✔ Las categorías ya existen, no se insertan nuevamente");
             }
         };
     }
