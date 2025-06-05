@@ -1,47 +1,66 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'; // Para hacer peticiones HTTP
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthUser } from '../models/auth-user.model'; // Modelo con datos del usuario (username, password)
-import { TokenDto } from '../models/token-dto.model'; // Modelo con el token JWT recibido
+import { AuthUser } from '../models/auth-user.model';
+import { TokenDto } from '../models/token-dto.model';
+import { jwtDecode } from 'jwt-decode';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
-  providedIn: 'root', // Servicio singleton accesible desde toda la app
+  providedIn: 'root',
 })
 export class AuthService {
-
-  // URL base para autenticación, apunta al gateway o directamente al microservicio auth
   private baseUrl = 'http://localhost:8085/auth';
+  private isBrowser: boolean;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+      private http: HttpClient,
+      @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
-  // Método para hacer login, envía credenciales y espera un token en respuesta
   login(credentials: AuthUser): Observable<TokenDto> {
     console.log('AuthService: enviando login con credenciales', credentials);
     return this.http.post<TokenDto>(`${this.baseUrl}/login`, credentials);
   }
 
-  // Guarda el token JWT en localStorage para mantener sesión
   saveToken(token: string): void {
+    if (!this.isBrowser) return;
+
     localStorage.setItem('access_token', token);
-    console.log('AuthService: token guardado en localStorage');
+
+    try {
+      const decoded: any = jwtDecode(token);
+      localStorage.setItem('user_name', decoded.sub || '');
+      localStorage.setItem('user_role', decoded.role || '');
+    } catch (err) {
+      console.error('Error al decodificar el token JWT:', err);
+    }
   }
 
-  // Recupera el token guardado
   getToken(): string | null {
-    return localStorage.getItem('access_token');
+    return this.isBrowser ? localStorage.getItem('access_token') : null;
   }
 
-  // Valida si hay un token para saber si el usuario está logueado
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  // Cierra sesión borrando el token almacenado
-  logout(): void {
-    localStorage.removeItem('access_token');
-    console.log('AuthService: token eliminado');
+  getUserName(): string | null {
+    return this.isBrowser ? localStorage.getItem('user_name') : null;
   }
-  create(user: { userName: string, password: string, role: string }): Observable<any> {
-  return this.http.post(`${this.baseUrl}/create`, user);
+
+  logout(): void {
+    if (this.isBrowser) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_name');
+      localStorage.removeItem('user_role');
+      console.log('AuthService: sesión cerrada y token eliminado');
+    }
+  }
+
+  create(user: { userName: string; password: string; role: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/create`, user);
   }
 }

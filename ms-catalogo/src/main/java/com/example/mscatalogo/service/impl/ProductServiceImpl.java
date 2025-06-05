@@ -17,6 +17,9 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private CategoryService categoryService;
+
     @Override
     public List<Product> listar() {
         return productRepository.findAll();
@@ -30,8 +33,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product guardar(Product product) {
+        if (product.getCategory() != null && product.getCategory().getId() != null) {
+            // Busca la categoría completa desde la BD
+            Category categoriaCompleta = categoryService.buscarPorId(product.getCategory().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+            // Asigna la categoría completa
+            product.setCategory(categoriaCompleta);
+        }
+
         return productRepository.save(product);
     }
+
 
     @Override
     public Product actualizar(Product product) {

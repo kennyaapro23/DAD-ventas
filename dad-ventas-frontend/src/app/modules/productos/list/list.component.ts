@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from '../../../core/models/producto.model';
 import { ProductService } from '../../../core/services/product.service';
+import {CartService} from "../../../core/services/cart.service";
 
 @Component({
   selector: 'app-list',
@@ -12,28 +13,37 @@ import { ProductService } from '../../../core/services/product.service';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
+  @Output() onAddToCart = new EventEmitter<{ id: number; name: string; price: number }>();
 
   products: Product[] = [];
   paginatedProducts: Product[] = [];
   cart: number[] = [];
 
   currentPage: number = 1;
-  itemsPerPage: number = 8;
+  itemsPerPage: number = 6;
   totalPages: number = 0;
 
   isLoading = false;
   errorMessage: string | null = null;
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService,
+              private cartService: CartService
+  ) {}
+
 
   ngOnInit(): void {
     this.loadProducts();
   }
 
-  addToCart(productId: number): void {
-    console.log('🛒 Producto agregado al carrito:', productId);
-    this.cart.push(productId);
+
+  addProductToCart(product: Product): void {
+    this.cartService.addItem({
+      id: product.id!,
+      name: product.name,
+      price: product.price
+    });
   }
+
 
   loadProducts(): void {
     this.isLoading = true;
@@ -53,6 +63,7 @@ export class ListComponent implements OnInit {
       }
     });
   }
+
 
   updatePaginatedProducts(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;

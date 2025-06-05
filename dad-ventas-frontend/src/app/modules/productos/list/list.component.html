@@ -68,15 +68,10 @@
                             🗑 Eliminar
                         </button>
                         <button
-                                (click)="addToCart(product.id!)"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded-md transition flex items-center gap-1"
+                                (click)="addProductToCart(product)"
+                                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                 xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1 5h12l-1-5M10 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z" />
-                            </svg>
-                            Añadir
+                            <i class="fa-solid fa-cart-plus"></i> Añadir al carrito
                         </button>
                     </div>
                 </td>

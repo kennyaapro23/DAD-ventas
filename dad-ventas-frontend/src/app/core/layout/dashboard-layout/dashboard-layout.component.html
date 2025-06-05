@@ -1,17 +1,15 @@
-<div class="flex h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
-    <!-- SIDEBAR -->
-    <aside
-            class="fixed lg:static inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out bg-gradient-to-b from-white to-slate-100 border-r border-slate-200 shadow-xl"
+<div class="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800 font-sans">
 
-    >
+    <!-- SIDEBAR -->
+    <aside class="fixed lg:static inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out bg-white border-r border-slate-200 shadow-xl rounded-r-3xl">
         <div class="flex flex-col h-full px-6 py-8 space-y-6">
 
             <!-- LOGO -->
             <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-sm">
+                <div class="h-11 w-11 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
                     🛍
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight text-slate-800">Admin</h1>
+                <h1 class="text-2xl font-extrabold tracking-tight text-indigo-700">Admin</h1>
             </div>
 
             <!-- NAVIGATION -->
@@ -19,17 +17,17 @@
                 <ng-container *ngFor="let item of sidebarItems">
                     <a
                             [routerLink]="item.route"
-                            routerLinkActive="active"
-                            class="flex items-center gap-3 px-4 py-3.5 rounded-lg transition-all no-underline shadow-sm group hover:shadow-md hover:-translate-y-0.5 hover:bg-indigo-50 hover:text-indigo-700"
+                            routerLinkActive="bg-indigo-50 text-indigo-700"
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline group hover:bg-indigo-100 hover:text-indigo-700 hover:shadow-md"
                     >
                         <i class="{{ item.icon }} text-indigo-400 group-hover:text-indigo-600 text-lg transition-all"></i>
-                        <span class="flex-1 transition-all">{{ item.label }}</span>
+                        <span class="flex-1">{{ item.label }}</span>
                         <span
                                 *ngIf="item.badge"
                                 class="ml-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium"
                         >
-            {{ item.badge }}
-          </span>
+              {{ item.badge }}
+            </span>
                     </a>
                 </ng-container>
             </nav>
@@ -38,7 +36,7 @@
             <div class="border-t border-slate-200 pt-6 mt-auto">
                 <button
                         (click)="logout()"
-                        class="flex items-center gap-3 px-4 py-3.5 w-full text-left rounded-lg text-red-600 hover:bg-red-50 hover:shadow transition-all font-semibold group"
+                        class="flex items-center gap-3 px-4 py-3.5 w-full text-left rounded-xl text-red-600 hover:bg-red-100 hover:shadow transition-all font-semibold group"
                 >
                     <i class="fa-solid fa-arrow-right-from-bracket text-red-400 group-hover:text-red-600 text-lg transition-all"></i>
                     Cerrar sesión
@@ -47,74 +45,122 @@
         </div>
     </aside>
 
-
-
     <!-- MAIN -->
     <div class="flex-1 flex flex-col overflow-hidden">
+
         <!-- HEADER -->
-        <header
-                class="sticky top-0 z-10 flex justify-between items-center h-16 px-6 bg-white border-b border-slate-200 shadow-sm backdrop-blur-sm bg-opacity-90"
-        >
-            <div class="text-lg font-bold">Panel de Control</div>
-            <div class="flex items-center gap-4">
-                <button class="relative" (click)="toggleCart()">
-                    🛒
+        <header class="sticky top-0 z-10 flex justify-between items-center h-20 px-8 bg-white border-b border-slate-200 shadow-md backdrop-blur bg-opacity-80">
+            <div class="text-2xl font-bold text-indigo-700">Panel de Control</div>
+
+            <div class="flex items-center gap-6">
+                <!-- Carrito -->
+                <button class="relative group" (click)="toggleCart()" title="Ver carrito">
+                    <div class="bg-indigo-100 text-indigo-700 rounded-full p-2 hover:bg-indigo-200 transition shadow-md">
+                        <i class="fa-solid fa-basket-shopping text-lg"></i>
+                    </div>
                     <span
                             *ngIf="cartTotalCount > 0"
-                            class="absolute -top-2 -right-2 rounded-full bg-red-500 text-white text-xs px-2"
+                            class="absolute -top-1 -right-1 rounded-full bg-red-500 text-white text-[10px] px-1.5 font-bold shadow-md"
                     >
-            {{ cartTotalCount }}
-          </span>
+                        {{ cartTotalCount }}
+                    </span>
                 </button>
-                <div class="flex items-center gap-2">
+
+                <!-- Usuario -->
+                <div class="flex items-center gap-4 bg-indigo-50 px-4 py-2 rounded-full shadow border border-indigo-200 hover:shadow-md transition">
+                    <div class="flex flex-col text-right leading-tight">
+                        <span class="text-xs text-indigo-500 font-medium">Bienvenido</span>
+                        <span class="text-sm font-semibold text-slate-800">{{ userName || 'Usuario' }}</span>
+                    </div>
                     <img
+                            [alt]="userName || 'Usuario'"
                             src="https://i.pravatar.cc/100?img=12"
-                            class="w-8 h-8 rounded-full shadow"
+                            class="w-10 h-10 rounded-full shadow-md border-2 border-indigo-300 hover:scale-105 transition-transform duration-300"
                     />
-                    <span class="font-medium">John Doe</span>
                 </div>
             </div>
         </header>
 
         <!-- CONTENIDO -->
-        <main class="flex-1 overflow-y-auto p-7">
-            <router-outlet></router-outlet>
+        <main class="flex-1 overflow-y-auto p-8 bg-white rounded-tl-3xl shadow-inner">
+
+            <router-outlet ></router-outlet>
         </main>
     </div>
 
     <!-- CARRITO -->
     <div
             *ngIf="cartOpen"
-            class="fixed right-0 top-0 h-full w-80 bg-white border-l border-slate-200 shadow-xl z-50 overflow-y-auto"
+            class="fixed right-0 top-0 h-full w-96 bg-gradient-to-br from-white to-slate-50 border-l border-slate-200 shadow-2xl z-50 flex flex-col overflow-y-auto transition-transform duration-300"
     >
-        <div class="flex justify-between items-center p-4 border-b">
-            <h2 class="font-semibold text-lg">Carrito</h2>
-            <button (click)="toggleCart()">✖</button>
-        </div>
-        <div *ngIf="cartItems.length === 0" class="p-4 text-slate-500">
-            El carrito está vacío.
-        </div>
-        <div
-                *ngFor="let item of cartItems; let i = index"
-                class="flex justify-between items-center p-4 border-b"
-        >
-            <span>{{ item.name }}</span>
-            <span class="text-sm text-slate-600">${{ item.price }}</span>
-            <button (click)="removeFromCart(i)" class="text-red-500 hover:text-red-700">
-                🗑
+
+        <!-- HEADER -->
+        <div class="flex justify-between items-center px-6 py-5 border-b bg-indigo-50 shadow-sm">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <button
+                    (click)="toggleCart()"
+                    class="text-slate-500 hover:text-red-500 transition text-lg"
+                    title="Cerrar"
+            >
+                ✖
             </button>
         </div>
-        <div class="p-4 font-medium">
-            Total:
-            <span class="float-right">${{ cartTotal.toFixed(2) }}</span>
+
+        <!-- CONTENIDO -->
+        <div *ngIf="cartItems.length === 0" class="p-8 text-slate-500 text-center italic">
+            Tu carrito está vacío... 💤
         </div>
-        <div class="p-4">
+
+        <div *ngFor="let item of cartItems; let i = index"
+             class="flex items-center justify-between px-6 py-4 border-b hover:bg-slate-100 transition duration-200">
+
+            <!-- Info producto -->
+            <div class="flex flex-col">
+                <span class="text-sm font-semibold text-slate-800">{{ item.name }}</span>
+                <span class="text-xs text-slate-500 mt-1">${{ item.price.toFixed(2) }}</span>
+            </div>
+
+            <!-- Controles cantidad -->
+            <div class="flex items-center gap-3">
+                <button
+                        (click)="decrementItem(item.id)"
+                        class="text-slate-500 hover:text-red-600 text-lg font-bold w-6 h-6 flex items-center justify-center border border-slate-300 rounded hover:bg-red-100 transition"
+                        title="Disminuir"
+                >–</button>
+
+                <span class="min-w-[24px] text-center text-sm font-medium">{{ item.quantity }}</span>
+
+                <button
+                        (click)="incrementItem(item.id)"
+                        class="text-slate-500 hover:text-green-600 text-lg font-bold w-6 h-6 flex items-center justify-center border border-slate-300 rounded hover:bg-green-100 transition"
+                        title="Aumentar"
+                >+</button>
+
+                <!-- Botón eliminar -->
+                <button
+                        (click)="removeFromCart(i)"
+                        class="text-red-500 hover:text-red-700 transition text-lg ml-2"
+                        title="Eliminar"
+                >
+                    🗑
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="p-6 border-t bg-white shadow-inner">
+            <div class="flex justify-between text-base font-bold text-slate-700 mb-4">
+                <span>Total:</span>
+                <span>${{ cartTotal.toFixed(2) }}</span>
+            </div>
             <button
                     (click)="checkout()"
-                    class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                    class="w-full bg-indigo-600 text-white font-semibold text-sm tracking-wide px-4 py-3 rounded-xl hover:bg-indigo-700 shadow-lg transition duration-300"
             >
-                Finalizar Compra
+            Realizar Pedido
             </button>
         </div>
+
     </div>
+
 </div>

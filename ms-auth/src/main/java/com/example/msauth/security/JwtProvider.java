@@ -30,8 +30,10 @@ public class JwtProvider    {
         Map<String, Object> claims = new HashMap<>();
         claims = Jwts.claims().setSubject(authUser.getUserName());
         claims.put("id", authUser.getId());
+        claims.put("role", authUser.getRole().name()); // Aquí agregas el rol
+
         Date now = new Date();
-        Date exp = new Date(Long.MAX_VALUE); // Token casi eterno (año 292278994)
+        Date exp = new Date(Long.MAX_VALUE); // Expiración larga (reemplazar si quieres JWT más seguros)
 
         return Jwts.builder()
                 .setClaims(claims)

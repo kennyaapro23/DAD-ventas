@@ -1,6 +1,5 @@
 package com.example.msauth.service.impl;
 
-
 import com.example.msauth.dto.AuthUserDto;
 import com.example.msauth.entity.AuthUser;
 import com.example.msauth.entity.TokenDto;
@@ -10,14 +9,7 @@ import com.example.msauth.service.AuthUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
-
-
 import java.util.Optional;
-
-
-
 
 @Service
 public class AuthUserServiceImpl implements AuthUserService {
