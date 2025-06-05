@@ -34,24 +34,32 @@ public class OrderServiceImpl implements OrderService {
     public Optional<Order> findById(Integer id) {
         Optional<Order> orderOpt = orderRepository.findById(id);
 
-        // Verificar que el pedido exista
         if (orderOpt.isEmpty()) {
-            return Optional.empty(); // Devolver un Optional vacío si no se encuentra el pedido
+            return Optional.empty();
         }
 
         Order order = orderOpt.get();
 
-        // Llamar a Feign para obtener el cliente y asignarlo al pedido
+        // Obtener cliente via Feign
         ClientDto clientDto = clientFeign.listById(order.getClientId()).getBody();
         if (clientDto != null) {
             order.setClientDto(clientDto);
         }
 
-        // Asignar los detalles de productos al pedido
+        // Asignar detalles con producto y calcular totalPrice
         order.getOrderDetails().forEach(orderDetail -> {
             ProductDto productDto = productFeign.getById(orderDetail.getProductId()).getBody();
             if (productDto != null) {
                 orderDetail.setProductDto(productDto);
+                orderDetail.setPrice(productDto.getPrice());
+
+                // Si amount está a 0, quizá falta asignarlo, revisa de dónde debe venir
+                if (orderDetail.getAmount() == null || orderDetail.getAmount() == 0) {
+                    // Asignar 1 o el valor real que corresponda, aquí solo para no dejar 0
+                    orderDetail.setAmount(1.0);
+                }
+
+                orderDetail.setTotalPrice(orderDetail.getPrice() * orderDetail.getAmount());
             }
         });
 

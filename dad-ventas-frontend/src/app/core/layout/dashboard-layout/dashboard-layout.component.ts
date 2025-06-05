@@ -1,10 +1,11 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+
 import { CartService } from '../../services/cart.service';
 import {OrderService} from "../../services/pedido.service";
-import {OrderRequest} from "../../models/pedido.model"; // Asegúrate de importar el servicio
+import {OrderRequest} from "../../models/pedido.model";
+import {AuthService} from "../../services/auth.service"; // Asegúrate de importar el servicio
 
 @Component({
   selector: 'app-dashboard-layout',
