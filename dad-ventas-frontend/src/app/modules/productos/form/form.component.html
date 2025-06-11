@@ -1,0 +1,110 @@
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8 mt-10">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">
+        {{ isEdit ? '✏️ Editar Producto' : '➕ Nuevo Producto' }}
+    </h2>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Nombre -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Nombre</label>
+            <input
+                    formControlName="name"
+                    type="text"
+                    class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    [class.border-red-500]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+            />
+            <div
+                    *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+                    class="text-sm text-red-500 mt-1"
+            >
+                El nombre es obligatorio.
+            </div>
+        </div>
+
+        <!-- Categoría -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Categoría</label>
+            <select
+                    formControlName="category"
+                    class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm bg-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    [class.border-red-500]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+            >
+                <option [ngValue]="null" disabled>Seleccione una categoría</option>
+                <option *ngFor="let cat of categories" [ngValue]="cat">{{ cat.name }}</option>
+            </select>
+        </div>
+
+        <!-- Código -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Código</label>
+            <input
+                    formControlName="code"
+                    type="text"
+                    class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+        </div>
+
+        <!-- Precio -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Precio</label>
+            <input
+                    formControlName="price"
+                    type="number"
+                    min="0"
+                    class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+        </div>
+
+        <!-- Stock -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Stock</label>
+            <input
+                    formControlName="stock"
+                    type="number"
+                    min="0"
+                    class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+        </div>
+
+        <!-- Imagen -->
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Imagen</label>
+            <input
+                    type="file"
+                    (change)="onFileChange($event)"
+                    class="mt-2 text-sm"
+                    accept="image/*"
+            />
+            <!-- Vista previa -->
+            <div *ngIf="imagePreview" class="mt-4">
+                <img
+                        [src]="imagePreview"
+                        alt="Vista previa"
+                        class="w-40 h-40 object-cover rounded-md shadow"
+                />
+            </div>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="text-red-500 text-sm">
+            {{ errorMessage }}
+        </div>
+
+        <!-- Botones -->
+        <div class="flex justify-between items-center">
+            <a
+                    [routerLink]="['/productos']"
+                    class="text-slate-600 hover:text-slate-800 transition text-sm"
+            >
+                ← Volver a la lista
+            </a>
+            <button
+                    type="submit"
+                    [disabled]="productForm.invalid"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md shadow disabled:opacity-50 transition"
+            >
+                {{ isEdit ? 'Actualizar' : 'Guardar' }}
+            </button>
+        </div>
+    </form>
+</div>

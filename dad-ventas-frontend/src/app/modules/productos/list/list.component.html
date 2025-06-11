@@ -1,0 +1,102 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">🛍️ Productos</h2>
+        <a
+                routerLink="/productos/nuevo"
+                class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-lg shadow-sm transition"
+        >
+            ➕ Nuevo Producto
+        </a>
+    </div>
+
+    <!-- Estado: Cargando -->
+    <div *ngIf="isLoading" class="text-slate-500 animate-pulse mb-4">
+        Cargando productos...
+    </div>
+
+    <!-- Estado: Error -->
+    <div *ngIf="errorMessage" class="bg-red-100 text-red-600 border border-red-300 px-4 py-2 rounded mb-4">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto bg-white shadow rounded-lg">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <tr>
+                <th class="px-6 py-3 text-left">ID</th>
+                <th class="px-6 py-3 text-left">Imagen</th>
+                <th class="px-6 py-3 text-left">Nombre</th>
+                <th class="px-6 py-3 text-left">Categoría</th>
+                <th class="px-6 py-3 text-left">Código</th>
+                <th class="px-6 py-3 text-left">Precio</th>
+                <th class="px-6 py-3 text-left">Stock</th>
+                <th class="px-6 py-3 text-left">Acciones</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+            <tr
+                    *ngFor="let product of paginatedProducts"
+                    class="hover:bg-slate-50 transition-colors duration-200"
+            >
+                <td class="px-6 py-4">{{ product.id }}</td>
+                <td>
+                    <img *ngIf="product.imageUrl"
+                         [src]="product.imageUrl"
+                         alt="{{ product.name }}"
+                         class="w-20 h-20 object-cover rounded" />
+                    <span *ngIf="!product.imageUrl" class="text-sm text-gray-400">Sin imagen</span>
+                </td>
+                <td class="px-6 py-4 font-medium text-slate-800">{{ product.name }}</td>
+                <td class="px-6 py-4">{{ product.category.name }}</td>
+                <td class="px-6 py-4">{{ product.code }}</td>
+                <td class="px-6 py-4 font-semibold text-green-600">${{ product.price }}</td>
+                <td class="px-6 py-4">{{ product.stock }}</td>
+                <td class="px-6 py-4">
+                    <div class="flex flex-wrap gap-2">
+                        <a
+                                [routerLink]="['/productos/editar', product.id]"
+                                class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-md transition"
+                        >
+                            ✏️ Editar
+                        </a>
+                        <button
+                                (click)="deleteProduct(product.id!)"
+                                class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded-md transition"
+                        >
+                            🗑 Eliminar
+                        </button>
+                        <button
+                                (click)="addProductToCart(product)"
+                                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        >
+                            <i class="fa-solid fa-cart-plus"></i> Añadir al carrito
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sin productos -->
+    <div *ngIf="!isLoading && products.length === 0" class="text-slate-500 text-center mt-6">
+        No hay productos disponibles.
+    </div>
+
+    <!-- Paginación -->
+    <div class="flex justify-center mt-6 space-x-2">
+        <button
+                *ngFor="let page of [].constructor(totalPages); let i = index"
+                (click)="goToPage(i + 1)"
+                [ngClass]="{
+        'bg-indigo-600 text-white': currentPage === i + 1,
+        'bg-slate-200 text-slate-700': currentPage !== i + 1
+      }"
+                class="px-4 py-2 rounded-full font-semibold hover:bg-indigo-500 hover:text-white transition"
+        >
+            {{ i + 1 }}
+        </button>
+    </div>
+</div>

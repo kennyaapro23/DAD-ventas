@@ -1,0 +1,106 @@
+<div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-10 border border-gray-200">
+    <!-- Título y botón -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-extrabold text-slate-800 flex items-center gap-2">
+            👥 Lista de Clientes
+        </h2>
+        <a
+                [routerLink]="['/clientes/nuevo']"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-md shadow flex items-center gap-2 transition"
+        >
+            ➕ Agregar Cliente
+        </a>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div
+            *ngIf="errorMessage"
+            class="text-red-600 bg-red-100 px-4 py-2 rounded mb-4 border border-red-300"
+    >
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="text-gray-500 text-sm mb-4 flex items-center gap-2">
+        <span class="animate-spin">⏳</span> Cargando clientes...
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto rounded-xl shadow-lg ring-1 ring-gray-200 bg-white">
+        <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+            <thead class="bg-indigo-100 text-indigo-800 uppercase text-xs font-bold tracking-wide">
+            <tr>
+                <th class="px-6 py-4">#</th>
+                <th class="px-6 py-4">Nombre</th>
+                <th class="px-6 py-4">Documento</th>
+                <th class="px-6 py-4">Email</th>
+                <th class="px-6 py-4">Teléfono</th>
+                <th class="px-6 py-4 text-center">Acciones</th>
+            </tr>
+            </thead>
+            <tbody
+                    class="divide-y divide-gray-100 text-slate-700 bg-white"
+                    *ngIf="paginatedClients.length > 0; else emptyState"
+            >
+            <tr
+                    *ngFor="let cliente of paginatedClients; let i = index"
+                    class="hover:bg-indigo-50 transition-colors duration-200"
+            >
+                <td class="px-6 py-4 font-mono text-gray-500">
+                    {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+                </td>
+                <td class="px-6 py-4 font-semibold">{{ cliente.name }}</td>
+                <td class="px-6 py-4">{{ cliente.document }}</td>
+                <td class="px-6 py-4">{{ cliente.email }}</td>
+                <td class="px-6 py-4">{{ cliente.telefono }}</td>
+                <td class="px-6 py-4 text-center">
+                    <div class="flex justify-center gap-3">
+                        <a
+                                [routerLink]="['/clientes/editar', cliente.id]"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 hover:text-indigo-900 font-medium text-sm shadow transition-all"
+                        >
+                            ✏️
+                            <span>Editar</span>
+                        </a>
+                        <button
+                                (click)="deleteCliente(cliente.id)"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-900 font-medium text-sm shadow transition-all"
+                        >
+                            🗑️
+                            <span>Eliminar</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Estado vacío -->
+    <ng-template #emptyState>
+        <div class="text-center text-gray-500 py-8 text-base italic">
+            No hay clientes registrados actualmente.
+        </div>
+    </ng-template>
+
+    <!-- Paginación -->
+    <div class="flex justify-between items-center mt-8" *ngIf="totalPages > 1">
+        <div class="text-sm text-slate-600">
+            Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong>
+        </div>
+        <div class="flex gap-2">
+            <button
+                    *ngFor="let page of [].constructor(totalPages); let index = index"
+                    (click)="goToPage(index + 1)"
+                    [ngClass]="{
+          'bg-indigo-600 text-white shadow': currentPage === index + 1,
+          'bg-white text-slate-700': currentPage !== index + 1
+        }"
+                    class="px-3 py-1 rounded-md border border-slate-300 hover:bg-indigo-500 hover:text-white transition text-sm"
+            >
+                {{ index + 1 }}
+            </button>
+        </div>
+    </div>
+</div>
