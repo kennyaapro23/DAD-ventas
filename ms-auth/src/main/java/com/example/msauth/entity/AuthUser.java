@@ -22,4 +22,6 @@ public class AuthUser {
     private String password;
     @Enumerated(EnumType.STRING)
     private Roles role;
+
+    private Integer clientId;
 }

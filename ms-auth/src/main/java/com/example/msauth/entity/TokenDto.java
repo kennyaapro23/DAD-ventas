@@ -1,14 +1,24 @@
 package com.example.msauth.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TokenDto {
+
+    @JsonProperty("token")
     private String token;
+
+    @JsonProperty("userName")
+    private String userName;
+
+    @JsonProperty("role")
+    private String role;
+
+    @JsonProperty("clientId")
+    private Integer clientId;
 }

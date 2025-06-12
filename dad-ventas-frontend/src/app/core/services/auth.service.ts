@@ -60,9 +60,17 @@ export class AuthService {
     }
   }
 
-  create(user: { userName: string; password: string; role: string }): Observable<any> {
+  create(user: {
+    userName: string;
+    password: string;
+    role: string;
+    name: string;
+    document: string;
+    telefono: string;
+  }): Observable<any> {
     return this.http.post(`${this.baseUrl}/create`, user);
   }
+
   getUserId(): number | null {
     if (!this.isBrowser) return null;
     const idStr = localStorage.getItem('user_id');

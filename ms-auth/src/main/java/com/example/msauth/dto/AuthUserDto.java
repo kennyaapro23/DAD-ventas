@@ -13,4 +13,9 @@ import lombok.NoArgsConstructor;
 public class AuthUserDto {
     private String userName;
     private String password;
+    private String role;
+
+    private String name;
+    private String document;
+    private String telefono;
 }

@@ -11,4 +11,6 @@ public interface OrderService {
     public Order save(Order order);
     public Order update(Order order);
     public void delete(Integer id);
+    List<Order> findByClientId(Integer clientId);
+
 }

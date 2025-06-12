@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> {
+
     private final WebClient.Builder webClient;
 
     public AuthFilter(WebClient.Builder webClient) {
@@ -24,21 +25,22 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+
             System.out.println("AuthFilter: Incoming request to " + exchange.getRequest().getURI());
 
-            // Permitir solicitudes OPTIONS sin validar token para CORS preflight
+            // Permitir solicitudes OPTIONS sin validación (CORS preflight)
             if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
                 System.out.println("AuthFilter: OPTIONS request - permitiendo sin validación");
                 return chain.filter(exchange);
             }
 
-            // Verificar si existe header Authorization
+            // Verificar si hay header Authorization
             if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 System.out.println("AuthFilter: No Authorization header present");
                 return onError(exchange, HttpStatus.BAD_REQUEST);
             }
 
-            String tokenHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+            String tokenHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             System.out.println("AuthFilter: Authorization header = " + tokenHeader);
 
             String[] chunks = tokenHeader.split(" ");
@@ -50,30 +52,41 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
             String token = chunks[1];
             System.out.println("AuthFilter: Validating token = " + token);
 
-            // Validar token con el servicio de autenticación
             return webClient.build()
                     .post()
                     .uri("http://ms-auth-service/auth/validate?token=" + token)
                     .retrieve()
                     .bodyToMono(TokenDto.class)
                     .flatMap(t -> {
-                        System.out.println("AuthFilter: Token validation successful: " + t.getToken());
-                        // Continuar con la cadena de filtros si el token es válido
-                        return chain.filter(exchange);
+                        System.out.println("🟢 Inyectando headers:");
+                        System.out.println("x-username: " + t.getUserName());
+                        System.out.println("x-role: " + t.getRole());
+                        System.out.println("x-client-id: " + t.getClientId());
+
+                        // Agregar los headers personalizados
+                        ServerWebExchange mutatedExchange = exchange.mutate()
+                                .request(builder -> builder
+                                        .headers(httpHeaders -> {
+                                            httpHeaders.add("x-username", t.getUserName());
+                                            httpHeaders.add("x-role", t.getRole());
+                                            httpHeaders.add("x-client-id", String.valueOf(t.getClientId()));
+                                        })
+                                )
+                                .build();
+
+
+                        return chain.filter(mutatedExchange);
                     })
                     .onErrorResume(err -> {
-                        System.out.println("AuthFilter: Token validation error: " + err.getMessage());
-                        // Retornar error 401 Unauthorized si el token es inválido
+                        System.out.println("❌ Token validation error: " + err.getMessage());
                         return onError(exchange, HttpStatus.UNAUTHORIZED);
                     });
         };
     }
 
-    // Método para retornar un error y finalizar la respuesta
     public Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);
-        System.out.println("AuthFilter: Returning error response with status " + status);
         return response.setComplete();
     }
 

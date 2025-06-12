@@ -8,6 +8,7 @@ import com.example.mspedido.entity.Order;
 import com.example.mspedido.entity.OrderDetail;
 import com.example.mspedido.feign.ClientFeign;
 import com.example.mspedido.feign.ProductFeign;
+
 import com.example.mspedido.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/Order")
 public class OrderController {
+
     @Autowired
     private OrderService orderService;
 
@@ -82,5 +84,15 @@ public class OrderController {
         orderService.delete(id);
         return ResponseEntity.ok(orderService.list());
     }
+
+    @GetMapping("/mine")
+    public ResponseEntity<?> getMyOrders(@RequestHeader(value = "x-client-id", required = false) Integer clientId) {
+        if (clientId == null) {
+            return ResponseEntity.badRequest().body("❌ Header x-client-id no recibido. Verifica Gateway.");
+        }
+        System.out.println("🔍 Pedido para clientId: " + clientId);
+        return ResponseEntity.ok(orderService.findByClientId(clientId));
+    }
+
 
 }

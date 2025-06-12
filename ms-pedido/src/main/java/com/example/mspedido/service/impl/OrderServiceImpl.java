@@ -87,6 +87,10 @@ public class OrderServiceImpl implements OrderService {
         // Guardar el pedido con los detalles actualizados
         return orderRepository.save(order);
     }
+    @Override
+    public List<Order> findByClientId(Integer clientId) {
+        return orderRepository.findByClientId(clientId);
+    }
 
     @Override
     public Order update(Order order) {

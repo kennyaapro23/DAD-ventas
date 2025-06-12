@@ -28,12 +28,6 @@ public class AuthUserSeeder {
                         .role(Roles.USER)
                         .build();
 
-                AuthUser empresa = AuthUser.builder()
-                        .userName("empresa01")
-                        .password(passwordEncoder.encode("empresa123"))
-                        .role(Roles.EMPRESA)
-                        .build();
-
                 AuthUser cliente = AuthUser.builder()
                         .userName("cliente01")
                         .password(passwordEncoder.encode("cliente123"))
@@ -42,7 +36,6 @@ public class AuthUserSeeder {
 
                 authUserRepository.save(admin);
                 authUserRepository.save(user);
-                authUserRepository.save(empresa);
                 authUserRepository.save(cliente);
 
                 System.out.println("✔ Usuarios iniciales creados con éxito.");

@@ -5,6 +5,8 @@ import com.example.msauth.dto.AuthUserDto;
 import com.example.msauth.entity.AuthUser;
 import com.example.msauth.entity.TokenDto;
 
+import java.util.List;
+
 public interface AuthUserService {
     public AuthUser save(AuthUserDto authUserDto);
 
@@ -13,5 +15,7 @@ public interface AuthUserService {
 
 
     public TokenDto validate(String token);
+
+    List<AuthUser> findAll();
 }
 
