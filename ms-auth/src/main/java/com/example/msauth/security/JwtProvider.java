@@ -31,6 +31,9 @@ public class JwtProvider    {
         claims = Jwts.claims().setSubject(authUser.getUserName());
         claims.put("id", authUser.getId());
         claims.put("role", authUser.getRole().name()); // Aquí agregas el rol
+        if (authUser.getClientId() != null) {
+            claims.put("clientId", authUser.getClientId()); // ✅ ¡Aquí se agrega!
+        }
 
         Date now = new Date();
         Date exp = new Date(Long.MAX_VALUE); // Expiración larga (reemplazar si quieres JWT más seguros)

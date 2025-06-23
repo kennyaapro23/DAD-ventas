@@ -16,11 +16,13 @@ import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
     private ProductFeign productFeign;
+
     @Autowired
     private ClientFeign clientFeign;
 
@@ -28,7 +30,6 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> list() {
         return orderRepository.findAll();
     }
-
 
     @Override
     public Optional<Order> findById(Integer id) {
@@ -46,17 +47,15 @@ public class OrderServiceImpl implements OrderService {
             order.setClientDto(clientDto);
         }
 
-        // Asignar detalles con producto y calcular totalPrice
+        // Inyectar productos y calcular totales
         order.getOrderDetails().forEach(orderDetail -> {
             ProductDto productDto = productFeign.getById(orderDetail.getProductId()).getBody();
             if (productDto != null) {
                 orderDetail.setProductDto(productDto);
                 orderDetail.setPrice(productDto.getPrice());
 
-                // Si amount está a 0, quizá falta asignarlo, revisa de dónde debe venir
-                if (orderDetail.getAmount() == null || orderDetail.getAmount() == 0) {
-                    // Asignar 1 o el valor real que corresponda, aquí solo para no dejar 0
-                    orderDetail.setAmount(1.0);
+                if (orderDetail.getAmount() == null) {
+                    throw new IllegalArgumentException("La cantidad (amount) no puede ser nula");
                 }
 
                 orderDetail.setTotalPrice(orderDetail.getPrice() * orderDetail.getAmount());
@@ -66,36 +65,67 @@ public class OrderServiceImpl implements OrderService {
         return Optional.of(order);
     }
 
+    @Override
     public Order save(Order order) {
-        // Iterar sobre cada detalle del pedido y calcular el monto basado en el precio del producto y la cantidad
         order.getOrderDetails().forEach(detail -> {
-            // Obtener el producto desde `ms-catalogo` utilizando Feign
             ProductDto productDto = productFeign.getById(detail.getProductId()).getBody();
 
             if (productDto != null) {
-                // Asignar el precio del producto al detalle del pedido
                 detail.setPrice(productDto.getPrice());
 
-                // Calcular el monto total del detalle como precio * cantidad (amount)
-                Double totalDetailPrice = detail.getPrice() * detail.getAmount();
-                detail.setTotalPrice(totalDetailPrice);
+                if (detail.getAmount() == null) {
+                    throw new IllegalArgumentException("La cantidad (amount) del producto no puede ser nula");
+                }
+
+                detail.setTotalPrice(detail.getPrice() * detail.getAmount());
             } else {
                 throw new RuntimeException("Producto no encontrado para el ID: " + detail.getProductId());
             }
         });
 
-        // Guardar el pedido con los detalles actualizados
         return orderRepository.save(order);
     }
+
     @Override
     public List<Order> findByClientId(Integer clientId) {
-        return orderRepository.findByClientId(clientId);
+        List<Order> orders = orderRepository.findByClientId(clientId);
+
+        for (Order order : orders) {
+            try {
+                ClientDto clientDto = clientFeign.listById(order.getClientId()).getBody();
+                order.setClientDto(clientDto);
+            } catch (Exception e) {
+                order.setClientDto(null);
+            }
+
+            for (OrderDetail detail : order.getOrderDetails()) {
+                try {
+                    ProductDto productDto = productFeign.getById(detail.getProductId()).getBody();
+                    detail.setProductDto(productDto);
+
+                    if (productDto != null) {
+                        detail.setPrice(productDto.getPrice());
+
+                        if (detail.getAmount() == null) {
+                            throw new IllegalArgumentException("Cantidad (amount) no puede ser nula");
+                        }
+
+                        detail.setTotalPrice(detail.getPrice() * detail.getAmount());
+                    }
+                } catch (Exception e) {
+                    detail.setProductDto(null);
+                }
+            }
+        }
+
+        return orders;
     }
 
     @Override
     public Order update(Order order) {
         return orderRepository.save(order);
     }
+
     @Override
     public void delete(Integer id) {
         orderRepository.deleteById(id);

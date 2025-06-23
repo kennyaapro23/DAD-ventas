@@ -1,23 +1,27 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from '../../../core/models/producto.model';
 import { ProductService } from '../../../core/services/product.service';
 import {CartService} from "../../../core/services/cart.service";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
+  @Input() clienteMode: boolean = false;
   @Output() onAddToCart = new EventEmitter<{ id: number; name: string; price: number }>();
 
   products: Product[] = [];
   paginatedProducts: Product[] = [];
   cart: number[] = [];
+  searchTerm: string = '';
+  filteredProducts: Product[] = [];
 
   currentPage: number = 1;
   itemsPerPage: number = 6;
@@ -33,6 +37,22 @@ export class ListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+  }
+  updatePaginatedProducts(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.filteredProducts = this.products.filter(product => {
+      const nameMatch = product.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const categoryMatch = product.category?.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+      return nameMatch || categoryMatch;
+    });
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.updatePaginatedProducts();
   }
 
 
@@ -65,11 +85,6 @@ export class ListComponent implements OnInit {
   }
 
 
-  updatePaginatedProducts(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedProducts = this.products.slice(startIndex, endIndex);
-  }
 
   goToPage(page: number): void {
     this.currentPage = page;

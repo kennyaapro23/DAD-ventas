@@ -4,13 +4,13 @@ import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-import { apiInterceptor } from './core/interceptors/api.interceptor';
+import {UrlInterceptor} from "./core/interceptors/url-interceptor";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([apiInterceptor]) // Interceptor global
+      withInterceptors([UrlInterceptor]) // Interceptor global
     ),
     provideAnimations(),
     importProvidersFrom(

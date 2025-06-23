@@ -32,7 +32,7 @@ export class ListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.clienteService.getCliente().subscribe({
+    this.clienteService.getClientes().subscribe({
       next: (data) => {
         this.clients = data;
         this.totalPages = Math.ceil(this.clients.length / this.itemsPerPage);

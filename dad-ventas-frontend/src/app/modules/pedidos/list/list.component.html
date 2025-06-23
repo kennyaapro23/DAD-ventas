@@ -1,0 +1,78 @@
+<div class="p-6">
+    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+        📦 <span>Mis Pedidos</span>
+    </h2>
+
+    <div *ngIf="errorMessage" class="text-red-600 mb-4">
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <div *ngIf="pedidos.length > 0; else noData" class="space-y-8">
+        <div *ngFor="let pedido of pedidos" class="border border-purple-300 shadow-md rounded-lg p-6 bg-white">
+
+            <!-- Encabezado del Pedido -->
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">N° Pedido</p>
+                    <p class="text-xl text-purple-700 font-bold">#{{ pedido.id }}</p>
+                </div>
+                <div class="text-sm text-gray-500">
+                    📅 {{ pedido.date | date:'medium' }}
+                </div>
+            </div>
+
+            <!-- Datos del Cliente -->
+            <div class="mb-4">
+                <p class="font-medium text-gray-700">👤 Cliente:</p>
+                <p class="text-base">
+                    {{ pedido.clientDto?.name || 'Cliente desconocido' }}
+                    <span *ngIf="pedido.clientDto?.email" class="text-sm text-gray-500">
+            ({{ pedido.clientDto?.email }})
+          </span>
+                </p>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div>
+                <p class="text-sm font-semibold text-gray-700 mb-2">🛒 Productos:</p>
+                <table class="w-full text-sm border">
+                    <thead class="bg-purple-200 text-purple-900 font-semibold">
+                    <tr>
+                        <th class="px-3 py-2 text-left">Producto</th>
+                        <th class="px-3 py-2 text-center">Cantidad</th>
+                        <th class="px-3 py-2 text-center">Precio Unitario</th>
+                        <th class="px-3 py-2 text-center">Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-gray-50">
+                    <tr *ngFor="let item of pedido.orderDetails" class="border-t">
+                        <td class="px-3 py-2">{{ item.productDto?.name || 'Producto #' + item.productId }}</td>
+                        <td class="px-3 py-2 text-center">{{ item.amount }}</td>
+                        <td class="px-3 py-2 text-center text-green-700">
+                            {{ item.price | currency:'USD' }}
+                        </td>
+                        <td class="px-3 py-2 text-center font-semibold text-green-800">
+                            {{ item.totalPrice | currency:'USD' }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Botón inferior -->
+            <div class="mt-6 text-center">
+                <button
+                        class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
+                >
+                    🧾 Generar Venta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #noData>
+        <div class="text-gray-500 mt-4 text-center">
+            ❌ No hay pedidos disponibles.
+        </div>
+    </ng-template>
+</div>

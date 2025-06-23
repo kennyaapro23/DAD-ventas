@@ -5,12 +5,13 @@ import { AuthUser } from '../models/auth-user.model';
 import { TokenDto } from '../models/token-dto.model';
 import { jwtDecode } from 'jwt-decode';
 import { isPlatformBrowser } from '@angular/common';
+import {resources} from "../resources/resources";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8085/auth';
+
   private isBrowser: boolean;
 
   constructor(
@@ -22,7 +23,7 @@ export class AuthService {
 
   login(credentials: AuthUser): Observable<TokenDto> {
     console.log('AuthService: enviando login con credenciales', credentials);
-    return this.http.post<TokenDto>(`${this.baseUrl}/login`, credentials);
+    return this.http.post<TokenDto>(resources.auth.login, credentials);
   }
 
   saveToken(token: string): void {
@@ -34,6 +35,9 @@ export class AuthService {
       const decoded: any = jwtDecode(token);
       localStorage.setItem('user_name', decoded.sub || '');
       localStorage.setItem('user_role', decoded.role || '');
+      if (decoded.clientId) {
+        localStorage.setItem('client_id', decoded.clientId.toString());
+      }
     } catch (err) {
       console.error('Error al decodificar el token JWT:', err);
     }
@@ -68,7 +72,7 @@ export class AuthService {
     document: string;
     telefono: string;
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/create`, user);
+    return this.http.post(resources.auth.create, user);
   }
 
   getUserId(): number | null {
@@ -76,5 +80,24 @@ export class AuthService {
     const idStr = localStorage.getItem('user_id');
     return idStr ? Number(idStr) : null;
   }
+  getUserRole(): string | null {
+    return this.isBrowser ? localStorage.getItem('user_role') : null;
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
+  }
+  getClientId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.clientId || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
 
 }

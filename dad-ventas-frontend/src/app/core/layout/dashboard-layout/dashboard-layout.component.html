@@ -141,6 +141,15 @@
                 <span>Total:</span>
                 <span>${{ cartTotal.toFixed(2) }}</span>
             </div>
+            <div *ngIf="isAdmin" class="cliente-select mb-3">
+                <label for="cliente">Seleccionar Cliente:</label>
+                <select id="cliente" [(ngModel)]="selectedClientId" class="form-select">
+                    <option [ngValue]="null">-- Seleccionar --</option>
+                    <option *ngFor="let cliente of clientes" [value]="cliente.id">
+                        {{ cliente.nombre }} - {{ cliente.documento }}
+                    </option>
+                </select>
+            </div>
             <button
                     (click)="checkout()"
                     class="w-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold text-sm tracking-wide px-4 py-3 rounded-xl hover:from-indigo-600 hover:to-violet-600 shadow-lg transition"

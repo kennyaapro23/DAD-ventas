@@ -9,12 +9,12 @@ import { Cliente } from '../../../core/models/cliente.model';
   standalone: true,
   selector: 'app-form',
   templateUrl: './form.component.html',
-  styleUrl: './form.component.scss',
+  styleUrls: ['./form.component.scss'],
   imports: [CommonModule, RouterModule, ReactiveFormsModule]
 })
 export class FormComponent implements OnInit {
   clienteForm!: FormGroup;
-  isEdit: boolean = false;
+  isEdit = false;
   errorMessage: string | null = null;
   clienteId: number | null = null;
 
@@ -40,21 +40,19 @@ export class FormComponent implements OnInit {
 
   initForm(): void {
     this.clienteForm = this.fb.group({
-      name: ['', Validators.required],
-      document: ['', Validators.required],
+      nombre: ['', Validators.required],
+      documento: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['']
     });
   }
 
   loadCliente(id: number): void {
-    this.clienteService.getClientById(id).subscribe({
-      next: (cliente) => {
-        this.clienteForm.patchValue(cliente);
-      },
+    this.clienteService.getClienteById(id).subscribe({
+      next: (cliente) => this.clienteForm.patchValue(cliente),
       error: (err) => {
-        console.error('Error al cargar cliente:', err);
-        this.errorMessage = '⚠️ Error al cargar cliente';
+        console.error('❌ Error al cargar cliente:', err);
+        this.errorMessage = '⚠️ No se pudo cargar el cliente';
       }
     });
   }
@@ -72,7 +70,7 @@ export class FormComponent implements OnInit {
           this.router.navigate(['/clientes']);
         },
         error: (err) => {
-          console.error(err);
+          console.error('❌', err);
           this.errorMessage = '⚠️ Error al actualizar cliente';
         }
       });
@@ -83,7 +81,7 @@ export class FormComponent implements OnInit {
           this.router.navigate(['/clientes']);
         },
         error: (err) => {
-          console.error(err);
+          console.error('❌', err);
           this.errorMessage = '⚠️ Error al crear cliente';
         }
       });

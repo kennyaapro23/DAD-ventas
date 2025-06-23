@@ -78,7 +78,22 @@ export const routes: Routes = [
         path: 'clientes/editar/:id',
         loadComponent: () =>
             import('./modules/clientes/form/form.component').then(m => m.FormComponent),
-      }
+      },
+      {
+        path: 'pedidos',
+        loadComponent: () =>
+            import('./modules/pedidos/list/list.component').then(m => m.ListComponent),
+      },
+      {
+        path: 'pedidos/nuevo',
+        loadComponent: () =>
+            import('./modules/pedidos/form/form.component').then(m => m.FormComponent),
+      },
+      {
+        path: 'pedidos/editar/:id',
+        loadComponent: () =>
+            import('./modules/pedidos/form/form.component').then(m => m.FormComponent),
+      },
     ]
   },
 

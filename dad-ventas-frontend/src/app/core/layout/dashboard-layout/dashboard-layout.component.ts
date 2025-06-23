@@ -1,16 +1,17 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { CartService } from '../../services/cart.service';
-import {OrderService} from "../../services/pedido.service";
-import {OrderRequest} from "../../models/pedido.model";
-import {AuthService} from "../../services/auth.service"; // Asegúrate de importar el servicio
+import { OrderService } from '../../services/pedido.service';
+import { OrderRequest } from '../../models/order.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterModule, CommonModule],
+  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
   templateUrl: './dashboard-layout.component.html',
   styleUrls: ['./dashboard-layout.component.scss']
 })
@@ -19,23 +20,39 @@ export class DashboardLayoutComponent implements OnInit {
   userName: string | null = null;
   cartOpen = false;
 
+  selectedClientId: number | null = null;
+  clientes: any[] = [];
+
   constructor(
       private authService: AuthService,
       private router: Router,
       public cartService: CartService,
-      private orderService: OrderService,
-
+      private orderService: OrderService
   ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
+    if (this.isAdmin) this.loadClientes();
+  }
+
+  loadClientes(): void {
+    this.orderService.getClientes().subscribe({
+      next: (clientes) => this.clientes = clientes,
+      error: (err) => {
+        console.error('❌ No se pudieron cargar los clientes:', err);
+        alert('Error al cargar clientes');
+      }
+    });
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   toggleCart() {
     this.cartOpen = !this.cartOpen;
   }
 
-  // Getters desde el CartService
   get cartItems() {
     return this.cartService.getItems();
   }
@@ -48,17 +65,14 @@ export class DashboardLayoutComponent implements OnInit {
     return this.cartService.getCount();
   }
 
-  // ✅ NUEVO: Aumentar cantidad
   incrementItem(productId: number): void {
     this.cartService.incrementQuantity(productId);
   }
 
-  // ✅ NUEVO: Disminuir cantidad (y eliminar si llega a 0)
   decrementItem(productId: number): void {
     this.cartService.decrementQuantity(productId);
   }
 
-  // ✅ Actualizado para trabajar por ID en lugar de index
   removeFromCart(index: number): void {
     const productId = this.cartItems[index]?.id;
     if (productId != null) {
@@ -74,17 +88,28 @@ export class DashboardLayoutComponent implements OnInit {
       return;
     }
 
-    const clientId = this.authService.getUserId(); // 👈 Este método lo explico abajo
-    if (!clientId) {
-      alert('⚠️ No se encontró el ID del cliente.');
-      return;
+    let clientId: number | null;
+
+    if (this.isAdmin) {
+      if (!this.selectedClientId) {
+        alert('⚠️ Como administrador, debes seleccionar un cliente.');
+        return;
+      }
+      clientId = this.selectedClientId;
+    } else {
+      clientId = this.authService.getClientId();
+      if (!clientId) {
+        alert('⚠️ No se encontró el ID del cliente.');
+        return;
+      }
     }
 
+    // ⚠️ Corregimos: quantity → amount
     const order: OrderRequest = {
       clientId,
       orderDetails: cartItems.map(item => ({
         productId: item.id,
-        quantity: item.quantity
+        amount: item.quantity // 👈 importante usar 'amount'
       }))
     };
 
@@ -101,7 +126,7 @@ export class DashboardLayoutComponent implements OnInit {
     });
   }
 
-  // Cerrar dropdown al hacer click fuera
+
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
