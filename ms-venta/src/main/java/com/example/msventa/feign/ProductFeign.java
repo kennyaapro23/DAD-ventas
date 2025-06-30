@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface ProductFeign {
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getById(@PathVariable Integer id);
+    public ProductDto getById(@PathVariable Integer id);
 
     @PutMapping("/{productId}/reduce-stock")
     ResponseEntity<Void> reduceStock(@PathVariable("productId") Integer productId, @RequestParam Integer amount);

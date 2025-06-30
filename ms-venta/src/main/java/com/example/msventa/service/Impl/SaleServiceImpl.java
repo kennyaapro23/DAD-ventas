@@ -55,23 +55,22 @@ public class SaleServiceImpl implements SaleService {
         }
     }
 
-    // Método para enriquecer una venta con los detalles de la orden asociada
     private void enrichSale(Sale sale) {
         if (sale.getOrderId() != null) {
             try {
                 // Obtener los detalles de la orden desde el microservicio
-                OrderDto orderDto = orderFeign.getById(sale.getOrderId()).getBody(); // Aquí obtenemos el cuerpo directamente
+                OrderDto orderDto = orderFeign.getById(sale.getOrderId());  // Aquí cambiamos a getById sin ResponseEntity
 
                 if (orderDto != null) {
                     sale.setOrderDto(orderDto); // Asignar la orden al DTO de venta
 
-                    // Asignar el clientId de la orden a la venta si no está presente
+                    // Asignar el clientId de la orden a la venta
                     if (orderDto.getClientId() != null) {
                         sale.setClientId(orderDto.getClientId()); // Asignar clientId de la orden a la venta
                     }
 
                     // Obtener los detalles del cliente asociado a la orden
-                    ClientDto clientDto = clientFeign.findById(orderDto.getClientId()).getBody();
+                    ClientDto clientDto = clientFeign.findById(orderDto.getClientId());  // Cambiado para obtener ClientDto directamente
                     if (clientDto != null) {
                         orderDto.setClientDto(clientDto); // Asignar el DTO del cliente a la orden
                     } else {
@@ -82,7 +81,7 @@ public class SaleServiceImpl implements SaleService {
                     if (orderDto.getOrderDetails() != null && !orderDto.getOrderDetails().isEmpty()) {
                         orderDto.getOrderDetails().forEach(detail -> {
                             if (detail.getProductId() != null) {
-                                ProductDto productDto = productFeign.getById(detail.getProductId()).getBody();
+                                ProductDto productDto = productFeign.getById(detail.getProductId());  // Cambiado para obtener directamente el producto
                                 if (productDto != null) {
                                     detail.setProductDto(productDto); // Asignar el DTO del producto al detalle
                                 } else {
@@ -105,9 +104,12 @@ public class SaleServiceImpl implements SaleService {
     }
 
 
+
+
     @Override
     public Sale processSale(Integer orderId, String paymentMethod) {
-        OrderDto orderDto = orderFeign.getById(orderId).getBody();
+        OrderDto orderDto = orderFeign.getById(orderId);
+
 
         if (orderDto == null) {
             throw new RuntimeException("Pedido no encontrado para el ID: " + orderId);
@@ -169,7 +171,7 @@ public class SaleServiceImpl implements SaleService {
     }
 
     private OrderDto getOrderDtoByOrderId(Integer orderId) {
-        return orderFeign.getById(orderId).getBody();
+        return orderFeign.getById(orderId);
     }
 }
 

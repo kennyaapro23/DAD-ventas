@@ -79,7 +79,8 @@ public class SaleController {
 
         try {
             // Verificación de existencia del pedido
-            OrderDto orderDto = orderFeign.getById(orderId).getBody();  // Cambiado a solo OrderDto
+            OrderDto orderDto = orderFeign.getById(orderId);
+            // Cambiado a solo OrderDto
 
             if (orderDto == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
