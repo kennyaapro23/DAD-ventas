@@ -36,7 +36,7 @@ spring:
         - id: ms-catalogo-service
           uri: lb://ms-catalogo-service
           predicates:
-            - Path=/Category/**, /Product/**
+            - Path=/Category/**, /Product/**, /uploads/**
           filters:
             - AuthFilter
 
