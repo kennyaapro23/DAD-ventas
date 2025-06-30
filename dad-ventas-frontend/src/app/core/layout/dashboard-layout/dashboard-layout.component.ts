@@ -37,10 +37,12 @@ export class DashboardLayoutComponent implements OnInit {
 
   loadClientes(): void {
     this.orderService.getClientes().subscribe({
-      next: (clientes) => this.clientes = clientes,
+      next: (clientes) => {
+        console.log('Clientes recibidos:', clientes);
+        this.clientes = clientes;
+      },
       error: (err) => {
-        console.error('❌ No se pudieron cargar los clientes:', err);
-        alert('Error al cargar clientes');
+        console.error('❌ Error al cargar clientes:', err);
       }
     });
   }
@@ -149,6 +151,7 @@ export class DashboardLayoutComponent implements OnInit {
     { route: '/clientes', label: 'Clientes', icon: 'fa-solid fa-key' },
     { route: '/usuarios', label: 'Usuarios', icon: 'fa-solid fa-user-group' },
     { route: '/pedidos', label: 'Pedidos', icon: 'fa-solid fa-bag-shopping' },
+    { route: '/ventas', label: 'Ventas', icon: 'fa-solid fa-gear' },
     { route: '/roles', label: 'Roles', icon: 'fa-solid fa-gear' }
   ];
 }

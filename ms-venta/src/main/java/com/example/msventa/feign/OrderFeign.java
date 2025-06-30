@@ -5,6 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
@@ -12,4 +14,7 @@ import java.util.Optional;
 public interface OrderFeign {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> getById(@PathVariable Integer id);
+
+    @PutMapping("/{id}/status")
+    ResponseEntity<Void> updateStatus(@PathVariable Integer id, @RequestParam String status);
 }

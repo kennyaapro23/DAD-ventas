@@ -22,11 +22,19 @@ export class SaleService {
         return this.http.get<Sale>(resources.ventas.detalle(id));
     }
 
-    // 🔹 Procesar una venta a partir de un pedido
-    processSale(orderId: number, paymentMethod: string): Observable<Sale> {
-        return this.http.post<Sale>(
-            resources.ventas.procesar(orderId, paymentMethod),
-            {} // el backend no espera un body, pero Angular requiere algo para POST
-        );
+    processSale(orderId: number, metodo: string, tarjetaData?: any): Observable<any> {
+        const url = resources.ventas.procesar(orderId, metodo);
+
+        let body = {};
+        if (metodo === 'TARJETA' && tarjetaData) {
+            body = {
+                numero: tarjetaData.numero,
+                fecha: tarjetaData.fecha,
+                cvv: tarjetaData.cvv
+            };
+        }
+
+        return this.http.post(url, body);
     }
+
 }

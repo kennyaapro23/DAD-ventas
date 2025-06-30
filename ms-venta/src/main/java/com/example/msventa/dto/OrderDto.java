@@ -11,4 +11,5 @@ public class OrderDto {
     private Integer clientId;
     private ClientDto clientDto;
     private List<OrderDetailDto> orderDetails;
+    private String status;
 }

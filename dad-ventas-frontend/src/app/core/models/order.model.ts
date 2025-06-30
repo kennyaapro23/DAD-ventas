@@ -21,4 +21,5 @@ export interface OrderResponse {
 
     orderDetails: OrderDetailResponse[]; // 👈 Usa modelo reusable
     date?: string;
+    status: string;
 }

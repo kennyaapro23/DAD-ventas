@@ -1,10 +1,12 @@
-import {Component, OnInit, Output, EventEmitter, Input} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from '../../../core/models/producto.model';
 import { ProductService } from '../../../core/services/product.service';
-import {CartService} from "../../../core/services/cart.service";
-import {FormsModule} from "@angular/forms";
+import { CartService } from '../../../core/services/cart.service';
+import { FormsModule } from '@angular/forms';
+import {environment} from "../../../environments/environment";
+
 
 @Component({
   selector: 'app-list',
@@ -14,14 +16,15 @@ import {FormsModule} from "@angular/forms";
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
+
   @Input() clienteMode: boolean = false;
   @Output() onAddToCart = new EventEmitter<{ id: number; name: string; price: number }>();
+  apiBaseUrl = environment.apiUrl;
 
   products: Product[] = [];
   paginatedProducts: Product[] = [];
-  cart: number[] = [];
-  searchTerm: string = '';
   filteredProducts: Product[] = [];
+  searchTerm: string = '';
 
   currentPage: number = 1;
   itemsPerPage: number = 6;
@@ -30,40 +33,14 @@ export class ListComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
 
-  constructor(private productService: ProductService,
-              private cartService: CartService
+  constructor(
+      private productService: ProductService,
+      private cartService: CartService
   ) {}
-
 
   ngOnInit(): void {
     this.loadProducts();
   }
-  updatePaginatedProducts(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.filteredProducts = this.products.filter(product => {
-      const nameMatch = product.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const categoryMatch = product.category?.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-      return nameMatch || categoryMatch;
-    });
-    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
-    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
-  }
-
-  onSearchChange(): void {
-    this.currentPage = 1;
-    this.updatePaginatedProducts();
-  }
-
-
-  addProductToCart(product: Product): void {
-    this.cartService.addItem({
-      id: product.id!,
-      name: product.name,
-      price: product.price
-    });
-  }
-
 
   loadProducts(): void {
     this.isLoading = true;
@@ -72,37 +49,70 @@ export class ListComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (data) => {
         this.products = data;
-        this.totalPages = Math.ceil(this.products.length / this.itemsPerPage);
-        this.updatePaginatedProducts();
+        this.onSearchChange();
         this.isLoading = false;
       },
       error: (err) => {
         console.error('❌ Error al cargar productos:', err);
-        this.errorMessage = 'Error cargando productos';
+        this.errorMessage = 'Error al cargar productos';
         this.isLoading = false;
       }
     });
   }
 
+  updatePaginatedProducts(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
 
+    this.filteredProducts = this.products.filter(product => {
+      const nameMatch = product.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const categoryMatch = product.category?.name?.toLowerCase().includes(this.searchTerm.toLowerCase());
+      return nameMatch || categoryMatch;
+    });
+
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+    this.paginatedProducts = this.filteredProducts.slice(start, end);
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.updatePaginatedProducts();
+  }
 
   goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
     this.updatePaginatedProducts();
   }
 
+  addProductToCart(product: Product): void {
+    this.cartService.addItem({
+      id: product.id!,
+      name: product.name,
+      price: product.price
+    });
+    alert('✅ Producto agregado al carrito');
+  }
+
   deleteProduct(id: number): void {
-    if (confirm('¿Seguro que deseas eliminar este producto?')) {
+    if (confirm('⚠️ ¿Estás seguro de eliminar este producto?')) {
       this.productService.deleteProduct(id).subscribe({
         next: () => {
           alert('✅ Producto eliminado correctamente');
           this.loadProducts();
         },
         error: (err) => {
-          console.error('Error al eliminar producto:', err);
-          this.errorMessage = 'Error al eliminar producto';
+          console.error('❌ Error al eliminar producto:', err);
+          this.errorMessage = 'Error al eliminar el producto';
         }
       });
     }
+  }
+
+  getImagenCompleta(ruta: string | undefined): string {
+    if (!ruta) {
+      return 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+    }
+    return `http://localhost:8085${ruta}`;
   }
 }

@@ -31,9 +31,9 @@ export const resources = {
         }
     },
     ventas: {
-        listar: `${API}/Sale`, // GET - lista todas las ventas
-        detalle: (id: number) => `${API}/Sale/${id}`, // GET - una venta por ID
+        listar: `${API}/Sale`,
+        detalle: (id: number) => `${API}/Sale/${id}`,
         procesar: (orderId: number, paymentMethod: string) =>
-            `${API}/Sale/process/${orderId}?paymentMethod=${encodeURIComponent(paymentMethod)}` // POST - procesar venta desde pedido
+            `${API}/Sale/process/${orderId}?paymentMethod=${encodeURIComponent(paymentMethod)}`
     },
 };

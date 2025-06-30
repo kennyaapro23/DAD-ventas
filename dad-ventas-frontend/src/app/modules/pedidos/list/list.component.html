@@ -1,4 +1,5 @@
 <div class="p-6">
+
     <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
         📦 <span>Mis Pedidos</span>
     </h2>
@@ -8,17 +9,28 @@
     </div>
 
     <div *ngIf="pedidos.length > 0; else noData" class="space-y-8">
+
         <div *ngFor="let pedido of pedidos" class="border border-purple-300 shadow-md rounded-lg p-6 bg-white">
 
             <!-- Encabezado del Pedido -->
             <div class="flex justify-between items-center mb-4 border-b pb-2">
                 <div>
                     <p class="text-sm text-gray-500 font-medium">N° Pedido</p>
-                    <p class="text-xl text-purple-700 font-bold">#{{ pedido.id }}</p>
+                    <p class="text-xl text-purple-700 font-bold">#{{ pedido.id || 'Sin ID' }}</p>
                 </div>
                 <div class="text-sm text-gray-500">
-                    📅 {{ pedido.date | date:'medium' }}
+                    📅 {{ pedido.date ? (pedido.date | date:'medium') : 'Sin fecha' }}
                 </div>
+                <div class="mb-2 flex items-center gap-2">
+                    <span class="text-sm font-semibold">Estado:</span>
+                    <span [ngClass]="{
+                    'bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded': pedido.status === 'PENDIENTE',
+                    'bg-green-100 text-green-800 px-2 py-0.5 rounded': pedido.status === 'PAGADO'
+                  }">
+                    {{ pedido.status || 'PENDIENTE' }}
+                  </span>
+                </div>
+
             </div>
 
             <!-- Datos del Cliente -->
@@ -26,9 +38,9 @@
                 <p class="font-medium text-gray-700">👤 Cliente:</p>
                 <p class="text-base">
                     {{ pedido.clientDto?.name || 'Cliente desconocido' }}
-                    <span *ngIf="pedido.clientDto?.email" class="text-sm text-gray-500">
-            ({{ pedido.clientDto?.email }})
-          </span>
+                    <span *ngIf="pedido.clientDto?.email as email" class="text-sm text-gray-500">
+                        ({{ email }})
+                    </span>
                 </p>
             </div>
 
@@ -46,7 +58,9 @@
                     </thead>
                     <tbody class="bg-gray-50">
                     <tr *ngFor="let item of pedido.orderDetails" class="border-t">
-                        <td class="px-3 py-2">{{ item.productDto?.name || 'Producto #' + item.productId }}</td>
+                        <td class="px-3 py-2">
+                            {{ item.productDto?.name || ('Producto #' + item.productId) }}
+                        </td>
                         <td class="px-3 py-2 text-center">{{ item.amount }}</td>
                         <td class="px-3 py-2 text-center text-green-700">
                             {{ item.price | currency:'USD' }}
@@ -59,15 +73,24 @@
                 </table>
             </div>
 
-            <!-- Botón inferior -->
-            <div class="mt-6 text-center">
-                <button
-                        class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
-                >
+            <!-- Acciones -->
+            <div class="mt-6 text-center flex justify-center gap-4 flex-wrap">
+
+                <button class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
+                        (click)="abrirModalPago(pedido.id)">
                     🧾 Generar Venta
                 </button>
+
+                <button *ngIf="esAdmin"
+                        class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300"
+                        (click)="eliminarPedido(pedido.id)">
+                    🗑 Eliminar
+                </button>
+
             </div>
+
         </div>
+
     </div>
 
     <ng-template #noData>
@@ -75,4 +98,128 @@
             ❌ No hay pedidos disponibles.
         </div>
     </ng-template>
+
 </div>
+
+<!-- MODAL PAGO -->
+<div *ngIf="mostrarModalPago" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">💳 Selecciona Método de Pago</h3>
+            <button (click)="cerrarModalPago()" class="text-gray-500 hover:text-red-500">✖</button>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div class="p-6 space-y-6">
+            <p class="text-sm text-gray-600 text-center">Selecciona el método de pago para procesar la venta:</p>
+
+            <div class="flex flex-col items-center gap-3">
+                <button *ngFor="let metodo of metodosPago"
+                        class="w-64 py-3 rounded text-white text-sm shadow transition text-center"
+                        [ngClass]="{
+                            'bg-gray-500 hover:bg-gray-600': metodoSeleccionado !== metodo,
+                            'bg-blue-600': metodoSeleccionado === metodo
+                        }"
+                        (click)="metodoSeleccionado = metodo">
+                    {{ metodo }}
+                </button>
+            </div>
+
+            <!-- Formulario para Tarjeta -->
+            <div *ngIf="metodoSeleccionado === 'TARJETA'" class="space-y-4 mt-4">
+                <div>
+                    <label class="block text-sm text-gray-700 mb-1">Número de Tarjeta:</label>
+                    <input type="text" [(ngModel)]="tarjeta.numero"
+                           placeholder="0000 0000 0000 0000"
+                           class="w-full border rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-sm text-gray-700 mb-1">Fecha Exp:</label>
+                        <input type="text" [(ngModel)]="tarjeta.fecha"
+                               placeholder="MM/AA"
+                               class="w-full border rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm text-gray-700 mb-1">CVV:</label>
+                        <input type="text" [(ngModel)]="tarjeta.cvv"
+                               placeholder="123"
+                               class="w-full border rounded px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón Confirmar -->
+            <div *ngIf="metodoSeleccionado" class="mt-4 text-center">
+                <button (click)="confirmarMetodoPago()"
+                        [disabled]="metodoSeleccionado === 'TARJETA' && !datosTarjetaValidos()"
+                        class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-2 rounded shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    ✅ Procesar Venta
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL COMPROBANTE -->
+<div *ngIf="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-8 relative">
+
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between border-b pb-4 mb-6">
+            <h2 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
+                🧾 Comprobante de Venta
+            </h2>
+            <button (click)="cerrarModal()" class="text-gray-500 hover:text-red-500 text-lg">
+                ✖
+            </button>
+        </div>
+
+        <!-- Tabla del Comprobante -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-base">
+                <tbody>
+                <tr class="border-b">
+                    <th class="py-3 pr-4 text-gray-600">ID Venta:</th>
+                    <td class="py-3 font-semibold text-gray-800">{{ comprobanteVenta?.id }}</td>
+                </tr>
+                <tr class="border-b">
+                    <th class="py-3 pr-4 text-gray-600">ID Pedido:</th>
+                    <td class="py-3 font-semibold text-gray-800">{{ comprobanteVenta?.orderId }}</td>
+                </tr>
+                <tr class="border-b">
+                    <th class="py-3 pr-4 text-gray-600">Método de Pago:</th>
+                    <td class="py-3 font-semibold text-gray-800">{{ comprobanteVenta?.paymentMethod }}</td>
+                </tr>
+                <tr class="border-b">
+                    <th class="py-3 pr-4 text-gray-600">Total:</th>
+                    <td class="py-3 font-semibold text-green-700">{{ comprobanteVenta?.totalAmount | currency:'USD' }}</td>
+                </tr>
+                <tr *ngIf="comprobanteVenta?.saleDate">
+                    <th class="py-3 pr-4 text-gray-600">Fecha:</th>
+                    <td class="py-3 font-semibold text-gray-800">{{ comprobanteVenta?.saleDate | date:'medium' }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones -->
+        <div class="mt-8 flex justify-end gap-4">
+            <button (click)="generarPDF()"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded shadow">
+                📥 Descargar PDF
+            </button>
+            <button (click)="cerrarModal()"
+                    class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow">
+                Cerrar
+            </button>
+        </div>
+
+    </div>
+</div>
+

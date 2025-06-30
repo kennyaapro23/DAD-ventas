@@ -85,6 +85,18 @@ public class OrderServiceImpl implements OrderService {
 
         return orderRepository.save(order);
     }
+    @Override
+    public void updateStatus(Integer orderId, String status) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+
+        if (optionalOrder.isEmpty()) {
+            throw new RuntimeException("Pedido con ID " + orderId + " no encontrado.");
+        }
+
+        Order order = optionalOrder.get();
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
 
     @Override
     public List<Order> findByClientId(Integer clientId) {

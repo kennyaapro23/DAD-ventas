@@ -17,6 +17,8 @@ public class Order {
     private String number;
     private Double totalAmount;
     private Integer clientId;
+    @Column(nullable = false)
+    private String status = "PENDIENTE";
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")

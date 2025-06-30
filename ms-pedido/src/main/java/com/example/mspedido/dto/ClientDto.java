@@ -6,6 +6,7 @@ import lombok.Data;
 public class ClientDto {
     private Integer id;
     private String name;
+    private String email;
     private String document;
 }
 

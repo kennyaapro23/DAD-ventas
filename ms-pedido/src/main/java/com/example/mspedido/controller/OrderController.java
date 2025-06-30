@@ -93,6 +93,15 @@ public class OrderController {
         System.out.println("🔍 Pedido para clientId: " + clientId);
         return ResponseEntity.ok(orderService.findByClientId(clientId));
     }
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestParam String status) {
+        try {
+            orderService.updateStatus(orderId, status);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
 
 }
