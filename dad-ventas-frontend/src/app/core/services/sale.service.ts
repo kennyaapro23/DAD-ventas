@@ -22,6 +22,7 @@ export class SaleService {
         return this.http.get<Sale[]>(resources.ventas.misCompras, { headers });
     }
 
+
     // Detalle de Venta
     getSaleById(id: number): Observable<Sale> {
         return this.http.get<Sale>(resources.ventas.detalle(id));
