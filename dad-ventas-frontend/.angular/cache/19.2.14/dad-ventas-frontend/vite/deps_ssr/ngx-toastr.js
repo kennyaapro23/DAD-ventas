@@ -9,15 +9,15 @@ import {
 } from "./chunk-E5LCZW5I.js";
 import {
   DomSanitizer
-} from "./chunk-RKOXEOY3.js";
-import "./chunk-VGOLCRQP.js";
+} from "./chunk-K5S5ZETS.js";
+import "./chunk-XXYQ3CCE.js";
+import "./chunk-HCZN52BW.js";
 import {
   NgIf
-} from "./chunk-4G27CYFI.js";
-import "./chunk-BB7NXITH.js";
+} from "./chunk-O4JJGJ4Q.js";
 import {
   DOCUMENT
-} from "./chunk-TGOYQ7WS.js";
+} from "./chunk-L2JJVDLB.js";
 import {
   ANIMATION_MODULE_TYPE,
   ApplicationRef,
@@ -40,7 +40,6 @@ import {
   ViewEncapsulation,
   inject,
   makeEnvironmentProviders,
-  require_cjs,
   setClassMetadata,
   signal,
   ɵɵadvance,
@@ -70,7 +69,12 @@ import {
   ɵɵtemplate,
   ɵɵtext,
   ɵɵtextInterpolate1
-} from "./chunk-KUXLJT3M.js";
+} from "./chunk-ANLLZO5L.js";
+import "./chunk-XCIYP5SE.js";
+import {
+  require_cjs
+} from "./chunk-ZUJ64LXG.js";
+import "./chunk-OYTRG5F6.js";
 import {
   __spreadProps,
   __spreadValues,

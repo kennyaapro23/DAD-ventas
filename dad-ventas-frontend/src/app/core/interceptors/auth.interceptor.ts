@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token'); // Asegúrate de que esta sea la misma clave
 
     if (token) {
         const cloned = req.clone({
@@ -12,7 +12,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         });
 
         console.log('✅ Interceptor: token agregado al header');
-
         return next(cloned);
     }
 

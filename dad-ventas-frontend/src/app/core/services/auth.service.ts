@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {Observable, tap} from 'rxjs';
 import { AuthUser } from '../models/auth-user.model';
 import { TokenDto } from '../models/token-dto.model';
 import { jwtDecode } from 'jwt-decode';
@@ -11,22 +11,28 @@ import { resources } from '../resources/resources';
   providedIn: 'root',
 })
 export class AuthService {
-
   private isBrowser: boolean;
 
   constructor(
       private http: HttpClient,
       @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.isBrowser = isPlatformBrowser(this.platformId);
+    this.isBrowser = isPlatformBrowser(this.platformId); // Verifica si está corriendo en el navegador
   }
 
   /**
    * Login y guarda token decodificado
    */
   login(credentials: AuthUser): Observable<TokenDto> {
-    return this.http.post<TokenDto>(resources.auth.login, credentials);
+    console.log('Sending login request with credentials:', credentials);
+    return this.http.post<TokenDto>(resources.auth.login, credentials).pipe(
+        tap((response: TokenDto) => {
+          // Guardar el token solo después de recibir la respuesta
+          this.saveToken(response.token); // Guarda el token en localStorage
+        })
+    );
   }
+
 
   /**
    * Guarda el token y los datos decodificados en localStorage
@@ -34,10 +40,11 @@ export class AuthService {
   saveToken(token: string): void {
     if (!this.isBrowser) return;
 
-    localStorage.setItem('access_token', token);
+    localStorage.setItem('token', token);
 
     try {
       const decoded: any = jwtDecode(token);
+      // Guardar datos decodificados en localStorage
       localStorage.setItem('user_name', decoded.sub || '');
       localStorage.setItem('user_role', decoded.role || '');
       if (decoded.clientId) {
@@ -86,7 +93,7 @@ export class AuthService {
       localStorage.removeItem('user_name');
       localStorage.removeItem('user_role');
       localStorage.removeItem('client_id');
-      console.log('AuthService: sesión cerrada');
+      console.log('AuthService: sesión cerrada y los datos eliminados de localStorage');
     }
   }
 
