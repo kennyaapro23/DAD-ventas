@@ -12,10 +12,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> {
 
     private final WebClient.Builder webClient;
+
+    // Rutas que se excluirán de validación
+    private static final List<String> excludePaths = Arrays.asList(
+            "/uploads", "/uploads/", "/uploads/**"
+    );
 
     public AuthFilter(WebClient.Builder webClient) {
         super(Config.class);
@@ -26,7 +34,8 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
 
-            System.out.println("AuthFilter: Incoming request to " + exchange.getRequest().getURI());
+            String path = exchange.getRequest().getURI().getPath();
+            System.out.println("AuthFilter: Incoming request to " + path);
 
             // Permitir solicitudes OPTIONS sin validación (CORS preflight)
             if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
@@ -34,7 +43,13 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                 return chain.filter(exchange);
             }
 
-            // Verificar si hay header Authorization
+            // Excluir rutas públicas como /uploads/**
+            if (excludePaths.stream().anyMatch(path::startsWith)) {
+                System.out.println("AuthFilter: Ruta pública detectada, sin validación: " + path);
+                return chain.filter(exchange);
+            }
+
+            // Validación del token
             if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 System.out.println("AuthFilter: No Authorization header present");
                 return onError(exchange, HttpStatus.BAD_REQUEST);
@@ -63,7 +78,6 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                         System.out.println("x-role: " + t.getRole());
                         System.out.println("x-client-id: " + t.getClientId());
 
-                        // Agregar los headers personalizados
                         ServerWebExchange mutatedExchange = exchange.mutate()
                                 .request(builder -> builder
                                         .headers(httpHeaders -> {
@@ -73,7 +87,6 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                                         })
                                 )
                                 .build();
-
 
                         return chain.filter(mutatedExchange);
                     })

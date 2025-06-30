@@ -3,7 +3,7 @@ import { OrderDetailRequest, OrderDetailResponse } from './order-detail.model';
 
 export interface OrderRequest {
     clientId: number;
-    orderDetails: OrderDetailRequest[]; // 👈 Usa modelo reusable
+    orderDetails: OrderDetailRequest[];
 }
 
 export interface OrderResponse {
@@ -19,7 +19,7 @@ export interface OrderResponse {
         email: string;
     } | null;
 
-    orderDetails: OrderDetailResponse[]; // 👈 Usa modelo reusable
+    orderDetails: OrderDetailResponse[];
     date?: string;
     status: string;
 }

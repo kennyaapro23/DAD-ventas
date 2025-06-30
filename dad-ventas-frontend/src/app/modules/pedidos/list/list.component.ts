@@ -48,19 +48,34 @@ export class ListComponent implements OnInit {
   private cargarPedidos(): void {
     const callback = {
       next: (data: OrderResponse[]) => {
-        this.pedidos = data;
+        console.log('✅ Respuesta pedidos:', data); // Verifica en consola si viene bien el clientDto
+
+        // Solo agrega "Cliente desconocido" si realmente falta clientDto
+        this.pedidos = data.map(pedido => ({
+          ...pedido,
+          clientDto: pedido.clientDto ?? {
+            id: 0,
+            name: 'Cliente desconocido',
+            email: '',
+            document: ''
+          }
+        }));
+
         if (data.length === 0) {
-          this.errorMessage = this.esAdmin ? '❌ No hay pedidos registrados.' : '❌ No hay pedidos disponibles.';
+          this.errorMessage = this.esAdmin
+              ? '❌ No hay pedidos registrados.'
+              : '❌ No hay pedidos disponibles.';
         }
       },
-      error: (err: any) => {
-        console.error('❌ Error al cargar los pedidos:', err);
-        this.errorMessage = '❌ Error al cargar los pedidos.';
-      }
+
     };
 
-    this.esAdmin ? this.pedidoService.getAllOrders().subscribe(callback) : this.pedidoService.getMyOrders().subscribe(callback);
+    this.esAdmin
+        ? this.pedidoService.getAllOrders().subscribe(callback)
+        : this.pedidoService.getMyOrders().subscribe(callback);
   }
+
+
 
   abrirModalPago(pedidoId: number): void {
     this.mostrarModalPago = true;

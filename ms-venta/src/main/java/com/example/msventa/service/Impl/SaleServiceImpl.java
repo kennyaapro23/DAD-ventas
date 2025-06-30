@@ -7,7 +7,9 @@ import com.example.msventa.feign.OrderFeign;
 import com.example.msventa.feign.ProductFeign;
 import com.example.msventa.repository.SaleRepository;
 import com.example.msventa.service.SaleService;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class SaleServiceImpl implements SaleService {
+
     @Autowired
     private SaleRepository saleRepository;
 
@@ -30,81 +33,119 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public List<Sale> listar() {
-
         List<Sale> sales = saleRepository.findAll();
-
-
-        sales.forEach(sale -> {
-            if (sale.getOrderId() != null) {
-                try {
-
-                    OrderDto orderDto = orderFeign.getById(sale.getOrderId()).getBody();
-                    sale.setOrderDto(orderDto);
-
-
-                    if (orderDto.getClientId() != null) {
-                        ClientDto clientDto = clientFeign.findById(orderDto.getClientId()).getBody();
-                        orderDto.setClientDto(clientDto);
-                    }
-
-
-                    orderDto.getOrderDetails().forEach(detail -> {
-                        if (detail.getProductId() != null) {
-                            ProductDto productDto = productFeign.getById(detail.getProductId()).getBody();
-                            detail.setProductDto(productDto);  //
-                        }
-                    });
-                } catch (Exception e) {
-                    // Manejar errores al obtener los detalles
-                    sale.setOrderDto(null);
-                    System.out.println("Error al obtener detalles del pedido, cliente o productos para la venta con ID: " + sale.getId());
-                }
-            }
-        });
-
+        enrichSales(sales); // Enriquecer ventas con la información de la orden y los productos
         return sales;
     }
 
     @Override
+    public List<SaleDto> listarVentasPorCliente(Integer clientId) {
+        List<Sale> ventas = saleRepository.findByClientId(clientId);
+        System.out.println("Ventas encontradas: " + ventas.size());  // Verifica cuántas ventas se encuentran
+
+        return ventas.stream()
+                .map(sale -> new SaleDto(sale, getOrderDtoByOrderId(sale.getOrderId())))
+                .collect(Collectors.toList());
+    }
+
+    // Método para enriquecer una lista de ventas con detalles de la orden
+    private void enrichSales(List<Sale> sales) {
+        for (Sale sale : sales) {
+            enrichSale(sale);
+        }
+    }
+
+    // Método para enriquecer una venta con los detalles de la orden asociada
+    private void enrichSale(Sale sale) {
+        if (sale.getOrderId() != null) {
+            try {
+                // Obtener los detalles de la orden desde el microservicio
+                OrderDto orderDto = orderFeign.getById(sale.getOrderId()).getBody(); // Aquí obtenemos el cuerpo directamente
+
+                if (orderDto != null) {
+                    sale.setOrderDto(orderDto); // Asignar la orden al DTO de venta
+
+                    // Asignar el clientId de la orden a la venta si no está presente
+                    if (orderDto.getClientId() != null) {
+                        sale.setClientId(orderDto.getClientId()); // Asignar clientId de la orden a la venta
+                    }
+
+                    // Obtener los detalles del cliente asociado a la orden
+                    ClientDto clientDto = clientFeign.findById(orderDto.getClientId()).getBody();
+                    if (clientDto != null) {
+                        orderDto.setClientDto(clientDto); // Asignar el DTO del cliente a la orden
+                    } else {
+                        System.out.println("⚠️ No se encontró cliente con ID: " + orderDto.getClientId());
+                    }
+
+                    // Enriquecer los detalles de la orden con los productos
+                    if (orderDto.getOrderDetails() != null && !orderDto.getOrderDetails().isEmpty()) {
+                        orderDto.getOrderDetails().forEach(detail -> {
+                            if (detail.getProductId() != null) {
+                                ProductDto productDto = productFeign.getById(detail.getProductId()).getBody();
+                                if (productDto != null) {
+                                    detail.setProductDto(productDto); // Asignar el DTO del producto al detalle
+                                } else {
+                                    System.out.println("⚠️ No se encontró el producto con ID: " + detail.getProductId());
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    System.out.println("⚠️ No se encontró la orden con ID: " + sale.getOrderId());
+                }
+            } catch (FeignException e) {
+                System.out.println("⚠️ Error al llamar al microservicio de pedidos: " + e.getMessage());
+                sale.setOrderDto(null);  // En caso de error al enriquecer la venta
+            } catch (Exception e) {
+                System.out.println("⚠️ Error general al enriquecer la venta con ID " + sale.getId() + ": " + e.getMessage());
+                sale.setOrderDto(null);
+            }
+        }
+    }
+
+
+    @Override
     public Sale processSale(Integer orderId, String paymentMethod) {
-        // Obtener los detalles del pedido desde ms-pedido
         OrderDto orderDto = orderFeign.getById(orderId).getBody();
 
         if (orderDto == null) {
             throw new RuntimeException("Pedido no encontrado para el ID: " + orderId);
         }
 
-        // Calcular el monto total sumando los precios totales de los detalles del pedido
+        // Aseguramos que cada OrderDetail tenga su totalPrice calculado antes de sumarlo
+        orderDto.getOrderDetails().forEach(OrderDetailDto::calculateTotalPrice);
+
+        // Calcular el monto total de la venta
         Double totalAmount = orderDto.getOrderDetails().stream()
-                .mapToDouble(OrderDetailDto::getTotalPrice) // Sumar todos los `totalPrice` de los detalles
+                .mapToDouble(OrderDetailDto::getTotalPrice)
                 .sum();
 
-        // Calcular los impuestos (por ejemplo, 18%)
+        // Calcular el monto total con impuestos (18% en este caso)
         Double taxAmount = totalAmount * 0.18;
         Double totalWithTax = totalAmount + taxAmount;
 
-        // Reducir el stock para cada producto en el microservicio ms-catalogo
+        // Reducir el stock de productos en el microservicio de productos
         orderDto.getOrderDetails().forEach(detail -> {
             productFeign.reduceStock(detail.getProductId(), detail.getAmount());
         });
 
-        // Crear y guardar la venta
+        // Crear la venta y asociar los datos de la orden
         Sale sale = new Sale();
         sale.setOrderId(orderId);
-        sale.setTotalAmount(totalWithTax);
+        sale.setTotalAmount(totalWithTax);  // Usar el total con impuestos
         sale.setPaymentMethod(paymentMethod);
         sale.setStatus("paid");
         sale.setSaleDate(LocalDateTime.now());
         sale.setOrderDto(orderDto);
 
-        return saleRepository.save(sale);
+        return saleRepository.save(sale);  // Guardar la venta en el repositorio
     }
-
 
     @Override
     public Sale getSaleById(Integer id) {
         return saleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada"));
     }
 
     @Override
@@ -116,7 +157,6 @@ public class SaleServiceImpl implements SaleService {
     public ReportDto generateReport(LocalDateTime startDate, LocalDateTime endDate) {
         List<Sale> sales = getSalesByDateRange(startDate, endDate);
 
-        // Consolidar los datos en un DTO de reporte
         Double totalAmount = sales.stream().mapToDouble(Sale::getTotalAmount).sum();
         Integer totalSales = sales.size();
 
@@ -127,4 +167,9 @@ public class SaleServiceImpl implements SaleService {
 
         return reportDto;
     }
+
+    private OrderDto getOrderDtoByOrderId(Integer orderId) {
+        return orderFeign.getById(orderId).getBody();
+    }
 }
+

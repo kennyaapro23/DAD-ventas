@@ -1,1 +1,92 @@
-<p>list works!</p>
+<div class="p-6 max-w-5xl mx-auto">
+
+    <h2 class="text-3xl font-bold mb-6 flex items-center gap-2">
+        {{ authService.isAdmin() ? '🧾 Ventas Registradas' : '🛒 Mis Compras' }}
+    </h2>
+
+    <!-- Estado de carga -->
+    <div *ngIf="isLoading" class="text-blue-600 mb-4 flex items-center gap-2">
+        <span class="animate-spin">🔄</span> Cargando información...
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="errorMessage" class="text-red-600 mb-4 border border-red-200 bg-red-50 p-3 rounded">
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <!-- Listado de ventas/compras -->
+    <div *ngIf="ventas.length > 0; else sinDatos" class="space-y-6">
+
+        <div *ngFor="let venta of ventas" class="border border-gray-300 rounded-lg shadow bg-white p-6 hover:shadow-lg transition">
+
+            <!-- Encabezado de venta -->
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-sm text-gray-500">ID Venta</p>
+                    <p class="text-xl font-bold text-purple-700">#{{ venta.id }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Fecha:</p>
+                    <p class="text-base text-gray-700">{{ venta.saleDate | date:'medium' }}</p>
+                </div>
+            </div>
+
+            <!-- Detalles principales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <p class="font-medium">💵 Total:</p>
+                    <p class="text-green-700 font-semibold">{{ venta.totalAmount | currency:'USD' }}</p>
+                </div>
+                <div>
+                    <p class="font-medium">💳 Método de Pago:</p>
+                    <p class="text-gray-800">{{ venta.paymentMethod }}</p>
+                </div>
+                <div>
+                    <p class="font-medium">📦 Estado:</p>
+                    <span [ngClass]="{
+            'bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded': venta.status === 'pendiente',
+            'bg-green-100 text-green-800 px-2 py-0.5 rounded': venta.status === 'paid'
+          }">
+            {{ venta.status }}
+          </span>
+                </div>
+            </div>
+
+            <!-- Datos de Cliente (Solo Admin) -->
+            <div *ngIf="authService.isAdmin() && venta.orderDto?.clientDto" class="border-t pt-4 mt-4">
+                <p class="font-medium text-gray-700">👤 Cliente:</p>
+                <p class="text-gray-800">
+                    {{ venta.orderDto?.clientDto?.name || 'Sin nombre' }}
+                    <span class="text-sm text-gray-500">({{ venta.orderDto?.clientDto?.email || 'Sin correo' }})</span>
+                </p>
+
+            </div>
+
+            <!-- Productos comprados -->
+            <div *ngIf="venta.orderDto?.orderDetails?.length" class="mt-4">
+                <p class="font-medium text-gray-700 mb-2">🛒 Productos:</p>
+                <ul class="divide-y divide-gray-200">
+                    <li *ngFor="let item of venta.orderDto?.orderDetails" class="py-2 flex justify-between">
+                        <div>
+                            <p class="font-medium">{{ item.productDto?.name || 'Producto' }}</p>
+                            <p class="text-sm text-gray-500">Cantidad: {{ item.amount }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-green-700 font-semibold">{{ item.totalPrice | currency:'USD' }}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Si no hay datos -->
+    <ng-template #sinDatos>
+        <div class="text-center text-gray-500 mt-10">
+            🚫 No se encontraron registros.
+        </div>
+    </ng-template>
+
+</div>

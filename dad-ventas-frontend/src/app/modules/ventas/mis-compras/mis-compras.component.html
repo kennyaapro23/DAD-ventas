@@ -1,0 +1,38 @@
+<div class="p-6 max-w-5xl mx-auto">
+
+    <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+        🛒 Mis Compras
+    </h2>
+
+    <div *ngIf="isLoading" class="text-blue-600 mb-4">Cargando tus compras...</div>
+
+    <div *ngIf="errorMessage" class="text-red-600 mb-4">
+        ⚠️ {{ errorMessage }}
+    </div>
+
+    <div *ngIf="compras.length > 0; else sinCompras" class="space-y-4">
+        <div *ngFor="let venta of compras" class="border p-4 rounded shadow">
+            <div class="flex justify-between mb-2">
+                <p class="font-bold">Venta #{{ venta.id }}</p>
+                <p>{{ venta.saleDate | date:'medium' }}</p>
+            </div>
+            <p>Total: <span class="text-green-600 font-semibold">{{ venta.totalAmount | currency:'USD' }}</span></p>
+            <p>Método: {{ venta.paymentMethod }}</p>
+
+            <div *ngIf="venta.orderDto?.orderDetails?.length">
+                <p class="font-medium">Productos:</p>
+                <ul class="list-disc pl-5">
+                    <li *ngFor="let item of venta.orderDto?.orderDetails || []">
+                        {{ item.productDto?.name || 'Producto' }} - Cantidad: {{ item.amount }} - Subtotal: {{ item.totalPrice | currency:'USD' }}
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <ng-template #sinCompras>
+        <div class="text-gray-500 mt-10 text-center">Aún no has realizado compras.</div>
+    </ng-template>
+
+</div>

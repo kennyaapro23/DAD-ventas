@@ -1,25 +1,21 @@
-server:
-  #port: 8089
-  port: ${PORT:${SERVER_PORT:0}}
-
 spring:
   application:
     name: ms-venta-service
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update  # Esto puede ser 'create', 'validate', etc., dependiendo de tu necesidad
     show-sql: true
 
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:ms_venta;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ms_venta  # URL de conexión a MySQL
+    username: root  # Cambia esto por el nombre de usuario de tu base de datos MySQL
     password:
+
   h2:
     console:
-      enabled: true
-      path: /h2-console
+      enabled: false  # Deshabilitamos la consola H2 ya que no la estamos usando
 
 springdoc:
   api-docs:

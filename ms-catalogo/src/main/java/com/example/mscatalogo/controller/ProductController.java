@@ -115,7 +115,6 @@ public class ProductController {
         return ResponseEntity.ok(results);
     }
 
-    // 🚀 NUEVO: Subida de imágenes sin romper el CRUD
     @PostMapping("/upload-image")
     public ResponseEntity<String> uploadImage(@RequestParam MultipartFile image) {
         String imageUrl = saveImage(image);
@@ -125,12 +124,21 @@ public class ProductController {
     private String saveImage(MultipartFile image) {
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
-            String uniqueName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+
+            String cleanedFileName = image.getOriginalFilename()
+                    .replaceAll("\\s+", "_")
+                    .replaceAll("[^a-zA-Z0-9._-]", "");
+
+            String uniqueName = UUID.randomUUID() + "_" + cleanedFileName;
+
             Path destination = Paths.get(UPLOAD_DIR).resolve(uniqueName);
             Files.copy(image.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/" + uniqueName;
+
+            return "http://localhost:8085/uploads/" + uniqueName;
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen", e);
         }
     }
+
 }

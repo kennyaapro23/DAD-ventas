@@ -7,6 +7,7 @@ import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/pedido.service';
 import { OrderRequest } from '../../models/order.model';
 import { AuthService } from '../../services/auth.service';
+import { CategoryService } from "../../services/category.service";
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -16,6 +17,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./dashboard-layout.component.scss']
 })
 export class DashboardLayoutComponent implements OnInit {
+
   userDropdownOpen = false;
   userName: string | null = null;
   cartOpen = false;
@@ -23,22 +25,51 @@ export class DashboardLayoutComponent implements OnInit {
   selectedClientId: number | null = null;
   clientes: any[] = [];
 
+  categoriaSeleccionada: number | null = null;
+  categoriasDisponibles: any[] = [];
+
+  sidebarItems: Array<any> = [];
+
   constructor(
       private authService: AuthService,
       private router: Router,
       public cartService: CartService,
-      private orderService: OrderService
+      private orderService: OrderService,
+      private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
-    if (this.isAdmin) this.loadClientes();
+
+    // Load categories and initialize sidebar based on role
+    this.loadCategorias();
+
+    if (this.isAdmin()) {
+      this.loadClientes();
+      this.sidebarItems = [
+        { route: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
+        { route: '/productos', label: 'Productos', icon: 'fa-solid fa-boxes-stacked' },
+        { route: '/categorias', label: 'Categorías', icon: 'fa-solid fa-tags' },
+        { route: '/clientes', label: 'Clientes', icon: 'fa-solid fa-key' },
+        { route: '/pedidos', label: 'Pedidos', icon: 'fa-solid fa-bag-shopping' },
+        { route: '/ventas', label: 'Ventas', icon: 'fa-solid fa-gear' },
+      ];
+    } else {
+      this.sidebarItems = [
+        { route: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
+        { route: '/pedidos', label: 'Mis Pedidos', icon: 'fa-solid fa-bag-shopping' },
+        { route: '/mis-compras', label: 'Mis Compras', icon: 'fa-solid fa-cart-shopping' },
+      ];
+    }
+  }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
   }
 
   loadClientes(): void {
     this.orderService.getClientes().subscribe({
       next: (clientes) => {
-        console.log('Clientes recibidos:', clientes);
         this.clientes = clientes;
       },
       error: (err) => {
@@ -47,8 +78,15 @@ export class DashboardLayoutComponent implements OnInit {
     });
   }
 
-  get isAdmin(): boolean {
-    return this.authService.isAdmin();
+  loadCategorias(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.categoriasDisponibles = data;
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar categorías:', err);
+      }
+    });
   }
 
   toggleCart() {
@@ -92,7 +130,7 @@ export class DashboardLayoutComponent implements OnInit {
 
     let clientId: number | null;
 
-    if (this.isAdmin) {
+    if (this.isAdmin()) {
       if (!this.selectedClientId) {
         alert('⚠️ Como administrador, debes seleccionar un cliente.');
         return;
@@ -106,12 +144,11 @@ export class DashboardLayoutComponent implements OnInit {
       }
     }
 
-    // ⚠️ Corregimos: quantity → amount
     const order: OrderRequest = {
       clientId,
       orderDetails: cartItems.map(item => ({
         productId: item.id,
-        amount: item.quantity // 👈 importante usar 'amount'
+        amount: item.quantity
       }))
     };
 
@@ -128,7 +165,6 @@ export class DashboardLayoutComponent implements OnInit {
     });
   }
 
-
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -144,14 +180,10 @@ export class DashboardLayoutComponent implements OnInit {
     alert('Sesión cerrada');
   }
 
-  sidebarItems = [
-    { route: '/dashboard', label: 'Dashboard', icon: 'fa-solid fa-chart-line' },
-    { route: '/productos', label: 'Productos', icon: 'fa-solid fa-boxes-stacked', badge: '+12' },
-    { route: '/categorias', label: 'Categorías', icon: 'fa-solid fa-tags' },
-    { route: '/clientes', label: 'Clientes', icon: 'fa-solid fa-key' },
-    { route: '/usuarios', label: 'Usuarios', icon: 'fa-solid fa-user-group' },
-    { route: '/pedidos', label: 'Pedidos', icon: 'fa-solid fa-bag-shopping' },
-    { route: '/ventas', label: 'Ventas', icon: 'fa-solid fa-gear' },
-    { route: '/roles', label: 'Roles', icon: 'fa-solid fa-gear' }
-  ];
+  // Método para ir a la categoría seleccionada
+  irACategoria(): void {
+    if (this.categoriaSeleccionada) {
+      this.router.navigate(['/categorias'], { queryParams: { id: this.categoriaSeleccionada } });
+    }
+  }
 }

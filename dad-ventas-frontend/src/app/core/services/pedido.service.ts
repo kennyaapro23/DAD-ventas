@@ -16,7 +16,6 @@ export class OrderService {
         return this.http.post<any>(resources.pedidos.crear, order);
     }
 
-
     getAllOrders(): Observable<OrderResponse[]> {
         return this.http.get<OrderResponse[]>(resources.pedidos.listar);
     }

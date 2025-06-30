@@ -5,7 +5,7 @@ import { AuthUser } from '../models/auth-user.model';
 import { TokenDto } from '../models/token-dto.model';
 import { jwtDecode } from 'jwt-decode';
 import { isPlatformBrowser } from '@angular/common';
-import {resources} from "../resources/resources";
+import { resources } from '../resources/resources';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +21,16 @@ export class AuthService {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
+  /**
+   * Login y guarda token decodificado
+   */
   login(credentials: AuthUser): Observable<TokenDto> {
-    console.log('AuthService: enviando login con credenciales', credentials);
     return this.http.post<TokenDto>(resources.auth.login, credentials);
   }
 
+  /**
+   * Guarda el token y los datos decodificados en localStorage
+   */
   saveToken(token: string): void {
     if (!this.isBrowser) return;
 
@@ -43,6 +48,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Devuelve el token almacenado
+   */
   getToken(): string | null {
     return this.isBrowser ? localStorage.getItem('access_token') : null;
   }
@@ -55,15 +63,36 @@ export class AuthService {
     return this.isBrowser ? localStorage.getItem('user_name') : null;
   }
 
+  getRole(): string | null {
+    return this.isBrowser ? localStorage.getItem('user_role') : null;
+  }
+
+  getClientId(): number | null {
+    const idStr = this.isBrowser ? localStorage.getItem('client_id') : null;
+    return idStr ? Number(idStr) : null;
+  }
+
+  isAdmin(): boolean {
+    return this.getRole() === 'ADMIN';
+  }
+
+  isClient(): boolean {
+    return this.getRole() === 'CLIENTE';
+  }
+
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('user_name');
       localStorage.removeItem('user_role');
-      console.log('AuthService: sesión cerrada y token eliminado');
+      localStorage.removeItem('client_id');
+      console.log('AuthService: sesión cerrada');
     }
   }
 
+  /**
+   * Registro de usuario
+   */
   create(user: {
     userName: string;
     password: string;
@@ -74,30 +103,4 @@ export class AuthService {
   }): Observable<any> {
     return this.http.post(resources.auth.create, user);
   }
-
-  getUserId(): number | null {
-    if (!this.isBrowser) return null;
-    const idStr = localStorage.getItem('user_id');
-    return idStr ? Number(idStr) : null;
-  }
-  getUserRole(): string | null {
-    return this.isBrowser ? localStorage.getItem('user_role') : null;
-  }
-
-  isAdmin(): boolean {
-    return this.getUserRole() === 'ADMIN';
-  }
-  getClientId(): number | null {
-    const token = this.getToken();
-    if (!token) return null;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.clientId || null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-
 }

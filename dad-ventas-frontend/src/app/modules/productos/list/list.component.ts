@@ -5,8 +5,6 @@ import { Product } from '../../../core/models/producto.model';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
-import {environment} from "../../../environments/environment";
-
 
 @Component({
   selector: 'app-list',
@@ -19,7 +17,6 @@ export class ListComponent implements OnInit {
 
   @Input() clienteMode: boolean = false;
   @Output() onAddToCart = new EventEmitter<{ id: number; name: string; price: number }>();
-  apiBaseUrl = environment.apiUrl;
 
   products: Product[] = [];
   paginatedProducts: Product[] = [];
@@ -110,9 +107,6 @@ export class ListComponent implements OnInit {
   }
 
   getImagenCompleta(ruta: string | undefined): string {
-    if (!ruta) {
-      return 'https://via.placeholder.com/300x200?text=Sin+Imagen';
-    }
-    return `http://localhost:8085${ruta}`;
+    return ruta || 'https://via.placeholder.com/300x200?text=Sin+Imagen';
   }
 }
