@@ -39,6 +39,9 @@ spring:
             - Path=/Category/**, /Product/**, /uploads/**
           filters:
             - AuthFilter
+            args:
+              excludePaths:
+              - /uploads/**
 
         - id: ms-client-service
           uri: lb://ms-client-service
