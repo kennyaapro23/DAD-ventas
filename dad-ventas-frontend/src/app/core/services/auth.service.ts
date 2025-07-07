@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { AuthUser } from '../models/auth-user.model';
 import { TokenDto } from '../models/token-dto.model';
 import { jwtDecode } from 'jwt-decode';
@@ -17,7 +17,7 @@ export class AuthService {
       private http: HttpClient,
       @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.isBrowser = isPlatformBrowser(this.platformId); // Verifica si está corriendo en el navegador
+    this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   /**
@@ -27,12 +27,10 @@ export class AuthService {
     console.log('Sending login request with credentials:', credentials);
     return this.http.post<TokenDto>(resources.auth.login, credentials).pipe(
         tap((response: TokenDto) => {
-          // Guardar el token solo después de recibir la respuesta
-          this.saveToken(response.token); // Guarda el token en localStorage
+          this.saveToken(response.token);
         })
     );
   }
-
 
   /**
    * Guarda el token y los datos decodificados en localStorage
@@ -44,7 +42,6 @@ export class AuthService {
 
     try {
       const decoded: any = jwtDecode(token);
-      // Guardar datos decodificados en localStorage
       localStorage.setItem('user_name', decoded.sub || '');
       localStorage.setItem('user_role', decoded.role || '');
       if (decoded.clientId) {
@@ -59,7 +56,7 @@ export class AuthService {
    * Devuelve el token almacenado
    */
   getToken(): string | null {
-    return this.isBrowser ? localStorage.getItem('access_token') : null;
+    return this.isBrowser ? localStorage.getItem('token') : null;
   }
 
   isLoggedIn(): boolean {
@@ -87,9 +84,17 @@ export class AuthService {
     return this.getRole() === 'CLIENTE';
   }
 
+  /**
+   * Genera headers de autorización con token y clientId
+   */
+
+
+  /**
+   * Cierra sesión y limpia el almacenamiento
+   */
   logout(): void {
     if (this.isBrowser) {
-      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
       localStorage.removeItem('user_name');
       localStorage.removeItem('user_role');
       localStorage.removeItem('client_id');

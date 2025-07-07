@@ -21,6 +21,8 @@ export class DashboardLayoutComponent implements OnInit {
   userDropdownOpen = false;
   userName: string | null = null;
   cartOpen = false;
+  isAdminVisible: boolean = false;
+
 
   selectedClientId: number | null = null;
   clientes: any[] = [];

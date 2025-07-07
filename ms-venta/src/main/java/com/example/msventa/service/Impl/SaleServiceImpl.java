@@ -107,9 +107,8 @@ public class SaleServiceImpl implements SaleService {
 
 
     @Override
-    public Sale processSale(Integer orderId, String paymentMethod) {
+    public Sale processSale(Integer orderId, String paymentMethod, Integer clientId) {
         OrderDto orderDto = orderFeign.getById(orderId);
-
 
         if (orderDto == null) {
             throw new RuntimeException("Pedido no encontrado para el ID: " + orderId);
@@ -135,13 +134,16 @@ public class SaleServiceImpl implements SaleService {
         // Crear la venta y asociar los datos de la orden
         Sale sale = new Sale();
         sale.setOrderId(orderId);
-        sale.setTotalAmount(totalWithTax);  // Usar el total con impuestos
+        sale.setTotalAmount(totalWithTax);
         sale.setPaymentMethod(paymentMethod);
         sale.setStatus("paid");
         sale.setSaleDate(LocalDateTime.now());
         sale.setOrderDto(orderDto);
 
-        return saleRepository.save(sale);  // Guardar la venta en el repositorio
+        // Aquí asignas el clientId de forma segura
+        sale.setClientId(clientId);
+
+        return saleRepository.save(sale);
     }
 
     @Override

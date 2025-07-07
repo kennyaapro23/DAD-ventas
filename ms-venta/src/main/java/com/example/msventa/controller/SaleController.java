@@ -75,42 +75,43 @@ public class SaleController {
     public ResponseEntity<?> processSale(
             @PathVariable Integer orderId,
             @RequestParam String paymentMethod,
+            @RequestHeader(value = "x-client-id") Integer clientId,
             @RequestBody(required = false) CardDto cardData) {
 
         try {
             // Verificación de existencia del pedido
             OrderDto orderDto = orderFeign.getById(orderId);
-            // Cambiado a solo OrderDto
 
             if (orderDto == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponseDto("Pedido no encontrado."));  // Pedido no encontrado
+                        .body(new ErrorResponseDto("Pedido no encontrado."));
             }
 
             // Validación de datos de tarjeta si el método de pago es TARJETA
             if ("TARJETA".equalsIgnoreCase(paymentMethod)) {
                 if (cardData == null || cardData.getNumero() == null || cardData.getCvv() == null || cardData.getFecha() == null) {
                     return ResponseEntity.badRequest()
-                            .body(new ErrorResponseDto("Los datos de la tarjeta son obligatorios para pago con tarjeta."));  // Error de tarjeta
+                            .body(new ErrorResponseDto("Los datos de la tarjeta son obligatorios para pago con tarjeta."));
                 }
             }
 
-            // Procesamiento de la venta
-            Sale sale = saleService.processSale(orderId, paymentMethod);
-            orderFeign.updateStatus(orderId, "PAGADO");  // Actualización de estado de la orden
+            // Envías también el clientId aquí
+            Sale sale = saleService.processSale(orderId, paymentMethod, clientId);
 
-            return ResponseEntity.ok(sale);  // Venta procesada correctamente
+            orderFeign.updateStatus(orderId, "PAGADO");
+
+            return ResponseEntity.ok(sale);
 
         } catch (FeignException.NotFound ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponseDto("El pedido no fue encontrado en el microservicio de pedidos."));  // Excepción de Feign: Not Found
+                    .body(new ErrorResponseDto("El pedido no fue encontrado en el microservicio de pedidos."));
         } catch (FeignException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto("Error al comunicarse con ms-pedido: " + ex.getMessage()));  // Excepción de Feign general
+                    .body(new ErrorResponseDto("Error al comunicarse con ms-pedido: " + ex.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError()
-                    .body(new ErrorResponseDto("Error interno al procesar la venta: " + e.getMessage()));  // Error interno general
+                    .body(new ErrorResponseDto("Error interno al procesar la venta: " + e.getMessage()));
         }
     }
 

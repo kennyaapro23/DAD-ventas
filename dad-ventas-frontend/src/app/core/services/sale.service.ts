@@ -3,13 +3,17 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Sale } from "../models/sale.model";
 import { resources } from "../resources/resources";
+import {AuthService} from "./auth.service";
+
 
 @Injectable({
     providedIn: 'root',
 })
 export class SaleService {
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private authService: AuthService ) {
+
+    }
 
     // Ventas del Admin
     getSales(): Observable<Sale[]> {
@@ -17,10 +21,17 @@ export class SaleService {
     }
 
     // Compras del Cliente (con token se inyecta x-client-id desde el gateway)
-    getMyPurchases(clientId: number): Observable<Sale[]> {
-        const headers = new HttpHeaders().set('x-client-id', clientId.toString());
+    getMyPurchases(): Observable<Sale[]> {
+        const token = this.authService.getToken();
+
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
         return this.http.get<Sale[]>(resources.ventas.misCompras, { headers });
     }
+
+
 
 
     // 🔥 Procesar Venta

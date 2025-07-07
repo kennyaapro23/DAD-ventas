@@ -11,7 +11,7 @@ public interface SaleService {
 
     List<Sale> listar();  // Listar todas las ventas (Admin)
 
-    Sale processSale(Integer orderId, String paymentMethod);
+    Sale processSale(Integer orderId, String paymentMethod, Integer clientId);
 
     Sale getSaleById(Integer id);
 

@@ -35,7 +35,7 @@ export class MisComprasComponent implements OnInit {
 
     if (clientId) {
       // Pasa el clientId al servicio de ventas
-      this.saleService.getMyPurchases(clientId).subscribe({
+      this.saleService.getMyPurchases().subscribe({
         next: (data) => {
           this.compras = data;
           this.isLoading = false;

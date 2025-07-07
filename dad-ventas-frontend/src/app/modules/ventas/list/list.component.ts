@@ -49,7 +49,7 @@ export class ListComponent implements OnInit {
       const clientId = this.authService.getClientId();
 
       if (clientId) {
-        this.saleService.getMyPurchases(clientId).subscribe({
+        this.saleService.getMyPurchases().subscribe({
           next: (data) => {
             this.ventas = data;  // Almacena las compras del cliente
             this.isLoading = false;
