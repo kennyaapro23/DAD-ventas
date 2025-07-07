@@ -23,11 +23,6 @@ export class SaleService {
     }
 
 
-    // Detalle de Venta
-    getSaleById(id: number): Observable<Sale> {
-        return this.http.get<Sale>(resources.ventas.detalle(id));
-    }
-
     // 🔥 Procesar Venta
     processSale(orderId: number, metodo: string, tarjetaData?: any): Observable<any> {
         const url = resources.ventas.procesar(orderId, metodo);

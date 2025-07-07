@@ -38,8 +38,8 @@ public class SaleController {
     // Endpoint para listar las compras de un cliente
     @GetMapping("/my")
     public ResponseEntity<?> listarMisCompras(@RequestHeader(value = "x-client-id") Integer clientId) {
-        if (clientId == null || clientId <= 0) {
-            return ResponseEntity.badRequest()
+            if (clientId == null || clientId <= 0) {
+                return ResponseEntity.badRequest()
                     .body(new ErrorResponseDto("El clientId es inválido o nulo."));
         }
 

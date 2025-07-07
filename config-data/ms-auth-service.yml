@@ -4,18 +4,14 @@ server:
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
-    generate-ddl: true
+      ddl-auto: update  # Esto puede ser 'create', 'validate', etc., dependiendo de tu necesidad
     show-sql: true
+
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:ms_auth;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ms_auth  # URL de conexión a MySQL
+    username: root  # Cambia esto por el nombre de usuario de tu base de datos MySQL
     password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
 
 eureka:
   client:

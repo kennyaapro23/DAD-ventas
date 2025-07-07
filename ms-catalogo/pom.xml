@@ -44,8 +44,9 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.30</version> <!-- Puedes actualizar la versión si es necesario -->
 			<scope>runtime</scope>
 		</dependency>
 
